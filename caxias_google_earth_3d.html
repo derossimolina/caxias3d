@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caxias do Sul — Google Earth 3D (Photorealistic Tiles)</title>
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body,#cesium{height:100%;font-family:'Inter',system-ui,sans-serif}
+  .gate{
+    position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+    background:#17181C;color:#F2EEE6;
+  }
+  .cartao{width:min(440px,calc(100vw - 32px));border:1px solid #2E2F36;border-radius:12px;
+    background:#1D1E24;padding:26px}
+  .cartao h1{font-family:'Fraunces',serif;font-weight:600;font-size:22px;line-height:1.2}
+  .cartao p{margin-top:10px;font-size:12.5px;color:#9A958A;line-height:1.55}
+  .cartao p a{color:#B85462}
+  .cartao input{
+    margin-top:14px;width:100%;padding:10px 12px;border-radius:8px;
+    border:1px solid #34353C;background:#15161A;color:#F2EEE6;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;
+  }
+  .cartao input:focus{outline:2px solid #8E2F3C;border-color:#8E2F3C}
+  .cartao button{
+    margin-top:12px;width:100%;padding:11px;border:none;border-radius:8px;
+    background:#8E2F3C;color:#F2EEE6;font-weight:500;font-size:13px;cursor:pointer;
+  }
+  .cartao button:hover{background:#A23A48}
+  .erro{margin-top:10px;font-size:12px;color:#E08894;display:none}
+  .aviso{
+    position:absolute;left:12px;bottom:34px;z-index:10;font-size:10.5px;color:#F2EEE6;
+    background:rgba(23,24,28,.85);border:1px solid #2E2F36;border-radius:6px;padding:5px 10px;
+  }
+</style>
+</head>
+<body>
+<div id="cesium"></div>
+
+<div class="gate" id="gate">
+  <div class="cartao">
+    <h1>Caxias do Sul em 3D fotorrealista</h1>
+    <p>Este visualizador usa os <b>Photorealistic 3D Tiles</b> do Google — a mesma malha tridimensional do Google Earth. Por ser dado proprietário, é preciso uma chave de API sua, gratuita no nível de uso pessoal: crie em <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener">Google Cloud Console</a> e habilite a <b>Map Tiles API</b>. A chave fica apenas no seu navegador, nada é enviado a terceiros além do próprio Google.</p>
+    <input id="chave" type="password" placeholder="Cole sua chave da Map Tiles API" autocomplete="off">
+    <button id="iniciar">Abrir o modelo 3D</button>
+    <p class="erro" id="erro">Não foi possível carregar os tiles. Verifique se a chave é válida e se a Map Tiles API está habilitada no projeto.</p>
+  </div>
+</div>
+
+<div class="aviso" hidden id="aviso">Imagens 3D © Google · Dados cartográficos © contribuidores</div>
+
+<script>
+const VISTAS = {
+  centro:   {lon:-51.1794, lat:-29.1678, alt:900,  heading:330, pitch:-32},
+};
+
+document.getElementById('iniciar').addEventListener('click', async () => {
+  const chave = document.getElementById('chave').value.trim();
+  const erro = document.getElementById('erro');
+  erro.style.display = 'none';
+  if (!chave) { erro.textContent = 'Informe a chave da API.'; erro.style.display='block'; return; }
+
+  const viewer = new Cesium.Viewer('cesium', {
+    imageryProvider:false, baseLayerPicker:false, geocoder:false, homeButton:false,
+    sceneModePicker:false, navigationHelpButton:false, animation:false, timeline:false,
+    requestRenderMode:true
+  });
+  viewer.scene.globe.show = false;            // os tiles do Google já incluem o terreno
+  viewer.scene.skyAtmosphere.show = true;
+
+  try {
+    const tileset = await Cesium.Cesium3DTileset.fromUrl(
+      `https://tile.googleapis.com/v1/3dtiles/root.json?key=${encodeURIComponent(chave)}`,
+      { showCreditsOnScreen:true }
+    );
+    viewer.scene.primitives.add(tileset);
+  } catch (e) {
+    console.error(e);
+    erro.textContent = 'Não foi possível carregar os tiles. Verifique a chave e se a Map Tiles API está habilitada.';
+    erro.style.display = 'block';
+    viewer.destroy();
+    return;
+  }
+
+  const v = VISTAS.centro;
+  viewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(v.lon, v.lat, v.alt),
+    orientation: {
+      heading: Cesium.Math.toRadians(v.heading),
+      pitch: Cesium.Math.toRadians(v.pitch),
+      roll: 0
+    },
+    duration: 0
+  });
+
+  document.getElementById('gate').remove();
+  document.getElementById('aviso').hidden = false;
+});
+</script>
+</body>
+</html>

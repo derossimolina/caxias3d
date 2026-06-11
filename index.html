@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caxias do Sul 3D</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#17181C; --bg2:#222329; --papel:#F2EEE6;
+  --vinho:#8E2F3C; --vinho-c:#B85462;
+  --verde:#2A6647; --verde-c:#4EA87A;
+  --cinza:#9A958A; --borda:#2E2F36;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);overflow:hidden}
+
+/* ── viewers ── */
+#ml-viewer,#cs-viewer{position:absolute;inset:0}
+#ml-viewer[hidden],#cs-viewer[hidden]{display:none}
+.cesium-viewer-bottom,.cesium-widget-credits{display:none!important}
+
+/* ── gate ── */
+#gate{
+  position:fixed;inset:0;z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg);padding:16px;
+}
+#gate[hidden]{display:none}
+.gate-wrap{width:min(680px,100%)}
+.gate-titulo{text-align:center;margin-bottom:20px}
+.gate-titulo h1{font-family:'Fraunces',serif;font-weight:600;font-size:26px;color:var(--papel)}
+.gate-titulo p{margin-top:5px;font-size:13px;color:var(--cinza)}
+.modos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:540px){.modos{grid-template-columns:1fr}}
+.modo{
+  border:1px solid var(--borda);border-radius:12px;
+  background:var(--bg2);padding:22px 18px;
+  display:flex;flex-direction:column;gap:9px;
+}
+.modo h2{font-family:'Fraunces',serif;font-weight:600;font-size:16px;color:var(--papel);line-height:1.2}
+.modo p{font-size:12.5px;color:var(--cinza);line-height:1.6;flex:1}
+.modo p strong{color:var(--papel)}
+.badge{
+  display:inline-block;font-size:9.5px;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 8px;border-radius:999px;width:fit-content;
+}
+.badge-free{background:rgba(42,102,71,.3);color:var(--verde-c);border:1px solid rgba(78,168,122,.3)}
+.badge-google{background:rgba(142,47,60,.2);color:var(--vinho-c);border:1px solid rgba(184,84,98,.3)}
+.btn-modo{
+  padding:10px;border:none;border-radius:8px;
+  font-weight:600;font-size:13px;cursor:pointer;
+  transition:background .15s;
+}
+.btn-free{background:var(--verde);color:var(--papel)}
+.btn-free:hover{background:#357A57}
+.btn-google{background:var(--vinho);color:var(--papel)}
+.btn-google:hover{background:#A23A48}
+.btn-modo:disabled{opacity:.5;cursor:default}
+.chave-input{
+  padding:9px 12px;border-radius:7px;
+  border:1px solid var(--borda);background:#15161A;color:var(--papel);
+  font-family:'IBM Plex Mono',monospace;font-size:12px;width:100%;
+  transition:border-color .15s;
+}
+.chave-input:focus{outline:none;border-color:var(--vinho)}
+.chave-input::placeholder{color:#444}
+.modo-erro{
+  font-size:11.5px;color:#E08894;padding:7px 10px;
+  border-radius:6px;background:rgba(142,47,60,.15);
+  border:1px solid rgba(142,47,60,.3);
+}
+.modo-erro[hidden]{display:none}
+.chave-nota{font-size:10.5px;color:var(--cinza);line-height:1.5}
+.chave-nota a{color:var(--vinho-c);text-decoration:none}
+.chave-nota a:hover{text-decoration:underline}
+
+/* ── loading ── */
+#loading{
+  position:fixed;inset:0;z-index:80;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg);gap:14px;color:var(--papel);font-size:13px;
+}
+#loading[hidden]{display:none}
+.spin{
+  width:34px;height:34px;border-radius:50%;
+  border:3px solid var(--borda);border-top-color:var(--vinho);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── painel ── */
+#painel{
+  position:absolute;top:16px;left:16px;z-index:10;
+  width:272px;max-width:calc(100vw - 32px);
+  background:color-mix(in srgb,var(--bg) 90%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--borda);border-radius:12px;
+  padding:16px 16px 13px;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+#painel[hidden]{display:none}
+#painel h1{font-family:'Fraunces',serif;font-weight:600;font-size:18px;color:var(--papel)}
+.p-sub{margin-top:4px;font-size:10.5px;color:var(--cinza);line-height:1.4}
+.p-tag{
+  display:inline-block;font-size:9px;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:2px 7px;border-radius:999px;margin-top:5px;
+}
+.secao{margin-top:11px;padding-top:10px;border-top:1px solid var(--borda)}
+.sec-label{
+  font-size:10px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--cinza);margin-bottom:6px;
+}
+.vistas{display:flex;flex-wrap:wrap;gap:4px}
+.btn-v{
+  font-size:11px;font-weight:500;color:var(--papel);
+  background:var(--bg2);border:1px solid var(--borda);
+  border-radius:999px;padding:5px 10px;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.btn-v:hover{border-color:var(--vinho-c)}
+.btn-v.ativo{background:var(--vinho);border-color:var(--vinho)}
+.ajuda{font-size:10px;color:var(--cinza);line-height:1.6}
+kbd{
+  font-family:'IBM Plex Mono',monospace;font-size:9px;
+  background:var(--bg2);border:1px solid var(--borda);
+  border-radius:3px;padding:1px 4px;
+}
+.btn-voltar{
+  margin-top:10px;width:100%;padding:6px;border-radius:7px;
+  border:1px solid var(--borda);background:transparent;
+  color:var(--cinza);font-size:11px;cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.btn-voltar:hover{border-color:var(--vinho-c);color:var(--papel)}
+
+/* ── coords ── */
+#coords{
+  position:absolute;right:12px;bottom:30px;z-index:10;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--papel);
+  background:color-mix(in srgb,var(--bg) 85%,transparent);
+  backdrop-filter:blur(6px);border:1px solid var(--borda);
+  border-radius:6px;padding:5px 10px;
+}
+#coords[hidden]{display:none}
+#creditos{
+  position:absolute;left:0;bottom:0;z-index:9;
+  padding:3px 8px;font-size:9.5px;color:var(--cinza);
+  background:color-mix(in srgb,var(--bg) 80%,transparent);
+}
+@media(max-width:560px){
+  #painel{width:auto;right:16px}
+  #coords{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="ml-viewer" hidden></div>
+<div id="cs-viewer" hidden></div>
+
+<div id="loading" hidden>
+  <div class="spin"></div>
+  <span id="load-msg">Carregando…</span>
+</div>
+
+<div id="gate">
+  <div class="gate-wrap">
+    <div class="gate-titulo">
+      <h1>Caxias do Sul 3D</h1>
+      <p>Escolha o modo de visualização</p>
+    </div>
+    <div class="modos">
+
+      <!-- Modo A: Satélite + OSM -->
+      <div class="modo">
+        <span class="badge badge-free">Sem chave de API</span>
+        <h2>Satélite + Edificações 3D</h2>
+        <p>
+          Imagem de satélite como base com <strong>edificações extrudidas em 3D</strong>
+          usando alturas reais do OpenStreetMap. Funciona sem nenhuma conta ou chave.
+        </p>
+        <button class="btn-modo btn-free" id="btn-sat">Abrir →</button>
+      </div>
+
+      <!-- Modo B: Google Photorealistic -->
+      <div class="modo">
+        <span class="badge badge-google">Requer chave Google</span>
+        <h2>Fotorrealista (Google Earth)</h2>
+        <p>
+          <strong>Imagens reais de satélite mapeadas sobre a geometria 3D</strong>
+          dos prédios e terreno — igual ao Google Earth. Requer a
+          <strong>Map Tiles API</strong> do Google Cloud (gratuita para uso pessoal).
+        </p>
+        <input class="chave-input" id="inp-chave" type="password"
+               placeholder="Cole sua chave da Map Tiles API" autocomplete="off">
+        <p class="modo-erro" id="google-erro" hidden></p>
+        <button class="btn-modo btn-google" id="btn-goo">Abrir com Google →</button>
+        <p class="chave-nota">
+          Crie em <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener">Google Cloud Console</a>
+          e habilite a <strong>Map Tiles API</strong>. Chave salva no navegador.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<aside id="painel" hidden>
+  <h1>Caxias do Sul</h1>
+  <p class="p-sub" id="p-sub"></p>
+  <span class="p-tag" id="p-tag"></span>
+  <div class="secao">
+    <p class="sec-label">Ir para</p>
+    <nav class="vistas" id="nav-v"></nav>
+  </div>
+  <div class="secao">
+    <p class="ajuda" id="p-ajuda"></p>
+  </div>
+  <button class="btn-voltar" id="btn-voltar">← Trocar modo</button>
+</aside>
+
+<div id="coords" hidden></div>
+<div id="creditos"></div>
+
+<script>
+'use strict';
+
+const LS_CHAVE = 'cxs3d_gapi';
+
+const VISTAS = [
+  { nome:'Vista Geral',
+    ml:{center:[-51.179,-29.168],zoom:11.5,pitch:45,bearing:0},
+    cs:{lon:-51.179,lat:-29.168,alt:5500,h:0,p:-50} },
+  { nome:'Centro',
+    ml:{center:[-51.1794,-29.1678],zoom:16,pitch:60,bearing:-18},
+    cs:{lon:-51.1794,lat:-29.1678,alt:500,h:330,p:-30} },
+  { nome:'São Pelegrino',
+    ml:{center:[-51.187,-29.161],zoom:15.5,pitch:55,bearing:20},
+    cs:{lon:-51.187,lat:-29.161,alt:420,h:15,p:-27} },
+  { nome:'UCS Campus',
+    ml:{center:[-51.152,-29.162],zoom:15.2,pitch:55,bearing:-30},
+    cs:{lon:-51.152,lat:-29.162,alt:500,h:200,p:-30} },
+  { nome:'Ana Rech',
+    ml:{center:[-51.144,-29.152],zoom:15.4,pitch:50,bearing:140},
+    cs:{lon:-51.144,lat:-29.152,alt:450,h:140,p:-28} },
+  { nome:'FENAC',
+    ml:{center:[-51.164,-29.186],zoom:15,pitch:50,bearing:0},
+    cs:{lon:-51.164,lat:-29.186,alt:580,h:0,p:-32} },
+  { nome:'Parque Getúlio',
+    ml:{center:[-51.184,-29.174],zoom:15.5,pitch:55,bearing:90},
+    cs:{lon:-51.184,lat:-29.174,alt:380,h:90,p:-25} },
+  { nome:'Zona Norte',
+    ml:{center:[-51.165,-29.145],zoom:15,pitch:50,bearing:180},
+    cs:{lon:-51.165,lat:-29.145,alt:550,h:180,p:-30} },
+];
+
+let mlMap=null, csViewer=null, modoAtual=null;
+
+const $=id=>document.getElementById(id);
+
+// Pré-preenche chave salva
+const chaveSalva = localStorage.getItem(LS_CHAVE);
+if(chaveSalva) $('inp-chave').value = chaveSalva;
+
+// ── Gate buttons ──
+$('btn-sat').addEventListener('click',()=>{
+  $('gate').hidden=true;
+  iniciarSatelite();
+});
+
+$('btn-goo').addEventListener('click',()=>{
+  const chave=$('inp-chave').value.trim();
+  if(!chave){ mostrarErroGoogle('Informe a chave antes de continuar.'); return; }
+  $('google-erro').hidden=true;
+  $('gate').hidden=true;
+  mostrarLoading('Carregando modelo fotorrealista…');
+  localStorage.setItem(LS_CHAVE,chave);
+  iniciarGoogle(chave);
+});
+$('inp-chave').addEventListener('keydown',e=>{ if(e.key==='Enter') $('btn-goo').click(); });
+
+$('btn-voltar').addEventListener('click',()=>{
+  if(mlMap){ mlMap.remove(); mlMap=null; }
+  if(csViewer){ csViewer.destroy(); csViewer=null; }
+  $('ml-viewer').hidden=true;
+  $('cs-viewer').hidden=true;
+  $('painel').hidden=true;
+  $('coords').hidden=true;
+  $('nav-v').innerHTML='';
+  modoAtual=null;
+  $('gate').hidden=false;
+});
+
+// ─────────────────────────────────────────────
+// MODO A — MapLibre + ESRI Satellite + OSM 3D
+// ─────────────────────────────────────────────
+function iniciarSatelite(){
+  modoAtual='sat';
+  $('ml-viewer').hidden=false;
+
+  mlMap = new maplibregl.Map({
+    container:'ml-viewer',
+    style:'https://tiles.openfreemap.org/styles/liberty',
+    center:VISTAS[1].ml.center,
+    zoom:VISTAS[1].ml.zoom,
+    pitch:VISTAS[1].ml.pitch,
+    bearing:VISTAS[1].ml.bearing,
+    antialias:true, maxPitch:80,
+  });
+  mlMap.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'top-right');
+  mlMap.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-left');
+
+  mlMap.on('load',()=>{
+    const style = mlMap.getStyle();
+
+    // Apaga camadas de fundo que cobririam o satélite
+    style.layers.forEach(l=>{
+      if(l.type==='background'||['landuse','landcover','water-area','park','sand']
+          .some(s=>l.id&&l.id.includes(s))){
+        try{ mlMap.setPaintProperty(l.id,'background-opacity',0); }catch(e){}
+        try{ mlMap.setPaintProperty(l.id,'fill-opacity',0); }catch(e){}
+      }
+    });
+
+    // Injeta satélite ESRI abaixo das camadas de texto/ícones
+    mlMap.addSource('sat',{
+      type:'raster',
+      tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      tileSize:256, maxzoom:19,
+      attribution:'© Esri, DigitalGlobe, GeoEye, USGS',
+    });
+
+    // Insere satélite logo acima do background
+    const primeiraLayer = style.layers.find(l=>l.type!=='background');
+    mlMap.addLayer(
+      {id:'sat-base',type:'raster',source:'sat',paint:{'raster-opacity':1}},
+      primeiraLayer ? primeiraLayer.id : undefined
+    );
+
+    // Localiza a fonte vetorial OSM
+    const vecId=Object.keys(style.sources).find(k=>style.sources[k].type==='vector');
+    if(vecId){
+      // Oculta edificações 2D para dar lugar às 3D
+      style.layers.forEach(l=>{
+        if(l['source-layer']==='building'&&l.type!=='fill-extrusion'){
+          try{ mlMap.setLayoutProperty(l.id,'visibility','none'); }catch(e){}
+        }
+      });
+
+      // Edificações 3D com altura real do OSM
+      mlMap.addLayer({
+        id:'edif-3d', type:'fill-extrusion',
+        source:vecId, 'source-layer':'building', minzoom:13,
+        paint:{
+          'fill-extrusion-color':[
+            'interpolate',['linear'],['coalesce',['get','render_height'],8],
+            0,'rgba(240,233,215,0.82)',
+            20,'rgba(210,198,172,0.85)',
+            50,'rgba(180,162,130,0.88)',
+            120,'rgba(145,125,95,0.90)',
+          ],
+          'fill-extrusion-height':['coalesce',['get','render_height'],8],
+          'fill-extrusion-base':['coalesce',['get','render_min_height'],0],
+          'fill-extrusion-opacity':0.90,
+        },
+      });
+
+      // Limite municipal IBGE
+      mlMap.addSource('limite',{type:'geojson',data:LIMITE_CAXIAS});
+      mlMap.addLayer({
+        id:'limite-linha',type:'line',source:'limite',
+        paint:{
+          'line-color':'#8E2F3C',
+          'line-width':['interpolate',['linear'],['zoom'],8,1.5,14,3],
+          'line-dasharray':[2.4,1.6],'line-opacity':0.9,
+        },
+      });
+    }
+  });
+
+  mlMap.on('mousemove',e=>{
+    $('coords').textContent=`lon ${e.lngLat.lng.toFixed(5)}, lat ${e.lngLat.lat.toFixed(5)}`;
+  });
+
+  exibirPainel('sat');
+}
+
+// ─────────────────────────────────────────────
+// MODO B — CesiumJS + Google Photorealistic 3D
+// ─────────────────────────────────────────────
+async function iniciarGoogle(apiKey){
+  await carregarScript('https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js');
+  await carregarCSS('https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css');
+
+  modoAtual='google';
+  $('cs-viewer').hidden=false;
+
+  Cesium.Ion.defaultAccessToken=undefined;
+
+  csViewer=new Cesium.Viewer('cs-viewer',{
+    imageryProvider:false, baseLayerPicker:false, geocoder:false,
+    homeButton:false, sceneModePicker:false, navigationHelpButton:false,
+    animation:false, timeline:false, fullscreenButton:false,
+    infoBox:false, selectionIndicator:false,
+    creditContainer:$('creditos'),
+    requestRenderMode:false,
+  });
+
+  csViewer.scene.globe.show=false;
+  csViewer.scene.skyAtmosphere.show=true;
+  csViewer.scene.fog.enabled=false;
+  csViewer.scene.backgroundColor=Cesium.Color.fromCssColorString('#17181C');
+
+  try{
+    const tileset=await Cesium.Cesium3DTileset.fromUrl(
+      `https://tile.googleapis.com/v1/3dtiles/root.json?key=${encodeURIComponent(apiKey)}`,
+      {showCreditsOnScreen:true}
+    );
+    csViewer.scene.primitives.add(tileset);
+  }catch(err){
+    console.error('[cxs3d]',err);
+    $('cs-viewer').hidden=true;
+    $('loading').hidden=true;
+    $('gate').hidden=false;
+    mostrarErroGoogle('Não foi possível carregar. Verifique se a chave é válida e se a Map Tiles API está habilitada no Google Cloud.');
+    localStorage.removeItem(LS_CHAVE);
+    return;
+  }
+
+  $('loading').hidden=true;
+
+  // Fly inicial: Centro de Caxias a baixa altitude
+  const v0=VISTAS[1].cs;
+  csViewer.camera.flyTo({
+    destination:Cesium.Cartesian3.fromDegrees(v0.lon,v0.lat,v0.alt),
+    orientation:{
+      heading:Cesium.Math.toRadians(v0.h),
+      pitch:Cesium.Math.toRadians(v0.p),
+      roll:0,
+    },
+    duration:0,
+  });
+
+  csViewer.scene.preRender.addEventListener(()=>{
+    const pos=csViewer.camera.positionCartographic;
+    if(!pos) return;
+    const lon=Cesium.Math.toDegrees(pos.longitude).toFixed(5);
+    const lat=Cesium.Math.toDegrees(pos.latitude).toFixed(5);
+    const alt=pos.height>=1000?(pos.height/1000).toFixed(2)+' km':pos.height.toFixed(0)+' m';
+    $('coords').textContent=`lon ${lon}, lat ${lat} · alt ${alt}`;
+  });
+
+  exibirPainel('google');
+}
+
+// ─────────────────────────────────────────────
+// Painel compartilhado
+// ─────────────────────────────────────────────
+function exibirPainel(modo){
+  $('painel').hidden=false;
+  $('coords').hidden=false;
+  $('nav-v').innerHTML='';
+
+  if(modo==='sat'){
+    $('p-sub').textContent='Satélite ESRI · Edificações OSM · Limite IBGE';
+    $('p-tag').textContent='Modo Satélite';
+    $('p-tag').className='p-tag badge-free';
+    $('p-ajuda').innerHTML='Arrastar: mover · Scroll: zoom<br><kbd>Ctrl</kbd>+arrastar: inclinar e girar câmera';
+  }else{
+    $('p-sub').textContent='Google Photorealistic 3D Tiles · texturas fotorrealistas';
+    $('p-tag').textContent='Modo Fotorrealista';
+    $('p-tag').className='p-tag badge-google';
+    $('p-ajuda').innerHTML='Arrastar: girar/mover · Scroll: zoom<br>Clique direito+arrastar: inclinar câmera';
+  }
+
+  VISTAS.forEach((v,i)=>{
+    const btn=document.createElement('button');
+    btn.textContent=v.nome;
+    btn.className='btn-v'+(i===1?' ativo':'');
+    btn.addEventListener('click',()=>{
+      $('nav-v').querySelectorAll('.btn-v').forEach(b=>b.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      if(modo==='sat'){
+        mlMap.flyTo({...v.ml,duration:2200,essential:true});
+      }else{
+        csViewer.camera.flyTo({
+          destination:Cesium.Cartesian3.fromDegrees(v.cs.lon,v.cs.lat,v.cs.alt),
+          orientation:{heading:Cesium.Math.toRadians(v.cs.h),pitch:Cesium.Math.toRadians(v.cs.p),roll:0},
+          duration:2.2,easingFunction:Cesium.EasingFunction.CUBIC_IN_OUT,
+        });
+      }
+    });
+    $('nav-v').appendChild(btn);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+function mostrarLoading(msg){
+  $('load-msg').textContent=msg;
+  $('loading').hidden=false;
+}
+function mostrarErroGoogle(msg){
+  const e=$('google-erro');
+  e.textContent=msg; e.hidden=false;
+}
+function carregarScript(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector(`script[src="${src}"]`)){res();return;}
+    window.CESIUM_BASE_URL='https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/';
+    const s=document.createElement('script');
+    s.src=src; s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+function carregarCSS(href){
+  return new Promise(res=>{
+    if(document.querySelector(`link[href="${href}"]`)){res();return;}
+    const l=document.createElement('link');
+    l.rel='stylesheet'; l.href=href; l.onload=res;
+    document.head.appendChild(l);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Limite municipal Caxias do Sul (IBGE 4305108)
+// ─────────────────────────────────────────────
+const LIMITE_CAXIAS={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"id":"4305108","name":"Caxias do Sul"},"geometry":{"type":"Polygon","coordinates":[[[-50.9615548245,-28.794827628],[-50.9310089917,-28.8070361105],[-50.913679673,-28.8012744515],[-50.9066398457,-28.8041625332],[-50.8901613981,-28.8058235989],[-50.8863757825,-28.8096554183],[-50.8834123089,-28.8404908934],[-50.8487281327,-28.832264563],[-50.8403907656,-28.829927758],[-50.8375199426,-28.8358177794],[-50.819144504,-28.8370206353],[-50.8196275888,-28.849233897],[-50.8271444052,-28.8560729178],[-50.8207831098,-28.8668368579],[-50.8043585099,-28.8679652401],[-50.7940512647,-28.874185361],[-50.8004606243,-28.8789161834],[-50.7987807085,-28.8861730141],[-50.8104811576,-28.8846588994],[-50.819765345,-28.8930916788],[-50.8146783057,-28.8993704708],[-50.8098633073,-28.8948645619],[-50.8056489544,-28.8959052014],[-50.811886262,-28.9037019946],[-50.8053141298,-28.9086678314],[-50.8095382119,-28.9151306045],[-50.8104091083,-28.9295318503],[-50.7931256394,-28.9346315635],[-50.786983921,-28.9407126979],[-50.7920500443,-28.9454913818],[-50.7988816927,-28.944665855],[-50.8022177585,-28.9526700634],[-50.8156887684,-28.9519912456],[-50.8159558652,-28.9568412865],[-50.8103006846,-28.9588367972],[-50.8181488513,-28.9666337584],[-50.8132449336,-28.9692493111],[-50.7998784835,-28.9636919686],[-50.7933897503,-28.9678656347],[-50.7918266681,-28.9790004554],[-50.7836484301,-28.9786187059],[-50.7826229668,-28.9966435393],[-50.7861270688,-29.0091676333],[-50.7895009273,-29.0122546129],[-50.7944089333,-29.0096960676],[-50.7931636197,-29.0162679111],[-50.7987248397,-29.0248842048],[-50.8057585634,-29.0244357374],[-50.8094355513,-29.0311867908],[-50.8146259754,-29.0279734455],[-50.813350351,-29.033992192],[-50.8164546956,-29.0334986935],[-50.8195314001,-29.0394600237],[-50.8449386701,-29.042180814],[-50.8684634686,-29.0481967314],[-50.8779628709,-29.0644619398],[-50.8756749044,-29.0713098242],[-50.9011287203,-29.07243037],[-50.9093085786,-29.0760734554],[-50.9322453915,-29.0738396423],[-50.936838356,-29.0696170699],[-50.9440167613,-29.0713726732],[-50.9387095903,-29.0807477458],[-50.9212847414,-29.0786996676],[-50.9084548931,-29.0830505435],[-50.9016063352,-29.0946611787],[-50.9077433352,-29.10571107],[-50.913935379,-29.1191898039],[-50.9044276424,-29.1164952622],[-50.897505233,-29.1190697185],[-50.8940317594,-29.1157700671],[-50.8798060016,-29.119484272],[-50.8748030774,-29.1164433792],[-50.8648597509,-29.1232630221],[-50.8539927865,-29.1194279624],[-50.8474202048,-29.1214688671],[-50.8462397731,-29.1267004373],[-50.8384952711,-29.1306028405],[-50.8406296914,-29.1524483891],[-50.8442773235,-29.1587076606],[-50.8390679459,-29.1654281396],[-50.8423558081,-29.1685030551],[-50.83371247,-29.1781514973],[-50.83528064,-29.1857231155],[-50.8403888846,-29.1901581453],[-50.8382603606,-29.1941934582],[-50.8437889599,-29.198455301],[-50.8477583804,-29.2094729501],[-50.8536127555,-29.2133797132],[-50.8535230854,-29.2254593288],[-50.8580315294,-29.224420304],[-50.8552445723,-29.2338980163],[-50.8605801327,-29.2378626789],[-50.8591970331,-29.2482360983],[-50.8641169477,-29.2492908168],[-50.8685302709,-29.2596738442],[-50.8815599787,-29.2697828109],[-50.8797761054,-29.2783504748],[-50.8896390812,-29.2876150051],[-50.8979352563,-29.2850815798],[-50.9088944541,-29.2870833674],[-50.909279763,-29.2920622703],[-50.9070179128,-29.302095084],[-50.9191280039,-29.307767551],[-50.9254548029,-29.2907268226],[-50.9302022349,-29.2862111326],[-50.9412766767,-29.2837143681],[-50.948636593,-29.2889977451],[-50.9459931116,-29.2985989928],[-50.9514268281,-29.3045720905],[-50.9483368431,-29.3126287885],[-50.9564324441,-29.3063260317],[-50.9631533452,-29.3056242522],[-50.9695795334,-29.2975769917],[-50.9860884258,-29.305719647],[-50.9848259645,-29.3147876742],[-50.9849050406,-29.3202888246],[-50.9907752111,-29.3164588931],[-51.0005442957,-29.3169985708],[-50.9963890411,-29.3113463377],[-50.9975818872,-29.3038092039],[-51.008424027,-29.3077603605],[-51.0134560336,-29.3009760451],[-51.0294341415,-29.2937752254],[-51.0313124694,-29.2935816404],[-51.0485817501,-29.3072115804],[-51.0693699237,-29.2912071925],[-51.0800518125,-29.2910694598],[-51.0905292873,-29.2924744424],[-51.0914824428,-29.3043861572],[-51.0993066944,-29.3171522307],[-51.1154696882,-29.3073114354],[-51.1254490984,-29.3134048512],[-51.1265131789,-29.3229377644],[-51.14152625,-29.3419184292],[-51.1613524901,-29.3307772964],[-51.1631720462,-29.3313064259],[-51.1676317489,-29.3330825673],[-51.1698295574,-29.3257034766],[-51.1786807458,-29.3246248267],[-51.1904437515,-29.3422866117],[-51.1964680703,-29.3448466929],[-51.2026994763,-29.3548762928],[-51.2117833829,-29.3580750383],[-51.2159267904,-29.3557974438],[-51.2182413726,-29.3551189783],[-51.2192836494,-29.3522076906],[-51.2270338979,-29.3436573009],[-51.2369534172,-29.3411516899],[-51.2160088775,-29.3361562678],[-51.2211070788,-29.3318264089],[-51.2622295294,-29.2946421926],[-51.2661871513,-29.2945942525],[-51.2652310086,-29.2453947499],[-51.2828435975,-29.244956467],[-51.2875821396,-29.2448380036],[-51.2878343019,-29.2253328028],[-51.2879298556,-29.2179230084],[-51.2879449561,-29.2167646672],[-51.2880247331,-29.2105366366],[-51.2899795661,-29.19344442],[-51.2933716377,-29.1934381586],[-51.2941834628,-29.1535462971],[-51.2922998785,-29.1129849094],[-51.2806010335,-29.1127438391],[-51.2811994313,-29.1087092273],[-51.2870497538,-29.1092955901],[-51.2870915906,-29.1013976999],[-51.3064674025,-29.089948713],[-51.2899872329,-29.0875179548],[-51.2387699325,-29.0866800415],[-51.2351509065,-29.0866199973],[-51.2175052002,-29.0870300202],[-51.1912796042,-29.0867806488],[-51.1899356538,-29.0868210552],[-51.1895671636,-29.0867700642],[-51.1611766942,-29.0865975252],[-51.1541389484,-29.0865531445],[-51.1478952512,-29.0865144435],[-51.1446912327,-29.0864941387],[-51.1447370612,-29.0798825829],[-51.1113199116,-29.0793564161],[-51.1101041863,-29.0783754544],[-51.1125945794,-29.0323185698],[-51.1062746677,-29.0331762685],[-51.1098895534,-29.0412739092],[-51.1010425951,-29.0394893458],[-51.0968799811,-29.0348788308],[-51.0917986122,-29.0362728869],[-51.0907419525,-29.0360507681],[-51.0824886969,-29.037206281],[-51.0715246261,-29.0321975127],[-51.0614037161,-29.035118742],[-51.0616134177,-29.0383717767],[-51.0555173664,-29.0348619197],[-51.0558808604,-29.0304520693],[-51.046692004,-29.0325117325],[-51.0443551482,-29.0291831021],[-51.0372270233,-29.0339786334],[-51.0317119664,-29.0307284863],[-51.0356479089,-29.0254914584],[-51.0288854382,-29.0274483063],[-51.0152260071,-29.0245194956],[-51.0115534357,-29.0166987983],[-51.0064901489,-29.02602838],[-50.9993775296,-29.0198717023],[-50.9927001357,-29.0233793108],[-50.9852445474,-29.0248865792],[-50.9803745752,-29.0174304788],[-50.9692658014,-29.0111726272],[-50.9667928296,-29.0148105653],[-50.9614967423,-29.0120070995],[-50.9431188723,-29.0180430746],[-50.9365478269,-29.0232406152],[-50.9180556081,-29.0248835122],[-50.9240745149,-29.0154533034],[-50.9213062347,-29.0031029186],[-50.9367707717,-28.9987200928],[-50.9388670983,-28.9909216433],[-50.9434354112,-28.9809732053],[-50.951080598,-28.9784798002],[-50.9569672856,-28.9604899075],[-50.9683235563,-28.9552447146],[-50.9782615779,-28.9454065589],[-50.9855645057,-28.9458902403],[-50.9915620375,-28.9420898495],[-51.0052170302,-28.9367258617],[-51.0028677655,-28.9333684267],[-51.0142417819,-28.9347876035],[-51.0161873003,-28.9309836325],[-51.0310177442,-28.9272892175],[-51.0299034272,-28.9234482167],[-51.0336382985,-28.9247530405],[-51.0359960593,-28.9210290331],[-51.0408489369,-28.9228081387],[-51.0548821844,-28.9173380614],[-51.0597308213,-28.9122948415],[-51.0588659113,-28.9074334386],[-51.0631858533,-28.9053673593],[-51.0617118976,-28.9028963898],[-51.0703689703,-28.8946610039],[-51.0733359071,-28.8865126117],[-51.0907379281,-28.8788006398],[-51.0945652913,-28.8808044955],[-51.1151269938,-28.8773877309],[-51.1212212556,-28.8811244742],[-51.1224105901,-28.8771889573],[-51.1263444672,-28.8770573253],[-51.1081425628,-28.8679739089],[-51.1140591495,-28.8539286743],[-51.0963792177,-28.8409555067],[-51.0896642918,-28.8412500121],[-51.0852042786,-28.8526801692],[-51.0717439558,-28.8621199824],[-51.0579673702,-28.8645017267],[-51.0477284938,-28.861804093],[-51.0463798835,-28.8580500436],[-51.0464442643,-28.84315779],[-51.0421568504,-28.8352496931],[-51.0325013166,-28.8324060573],[-51.0184662546,-28.8413292546],[-51.0152647378,-28.8396176117],[-51.0106779607,-28.8315830124],[-51.0005327192,-28.820661585],[-50.9931980956,-28.8156290366],[-50.975885762,-28.8140489005],[-50.9615548245,-28.794827628]]]}}]};
+</script>
+</body>
+</html>
