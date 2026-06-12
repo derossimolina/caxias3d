@@ -160,10 +160,55 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── Modo de navegação ── */
+#btn-walk{
+  position:absolute;bottom:52px;right:16px;z-index:10;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--borda);border-radius:8px;
+  color:var(--papel);font-size:11.5px;font-weight:500;
+  padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;
+  transition:all .15s;
+}
+#btn-walk:hover{border-color:var(--acento);color:var(--acento)}
+#btn-walk.ativo{background:var(--acento);border-color:var(--acento);color:#fff}
+
+#crosshair{
+  position:absolute;top:50%;left:50%;z-index:9;
+  transform:translate(-50%,-50%);
+  width:28px;height:28px;
+  pointer-events:none;
+  display:none;
+}
+#crosshair.visivel{display:block}
+#crosshair::before,#crosshair::after{
+  content:'';position:absolute;background:rgba(255,255,255,0.9);
+  border-radius:1px;
+}
+#crosshair::before{width:2px;height:100%;left:calc(50% - 1px);top:0}
+#crosshair::after{width:100%;height:2px;top:calc(50% - 1px);left:0}
+#crosshair-dot{
+  position:absolute;top:50%;left:50%;
+  width:6px;height:6px;border-radius:50%;
+  background:#fff;transform:translate(-50%,-50%);
+  box-shadow:0 0 0 2px rgba(0,0,0,0.5);
+}
+
+#walk-hint{
+  position:absolute;bottom:88px;right:16px;z-index:10;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);
+  backdrop-filter:blur(8px);border:1px solid var(--borda);border-radius:8px;
+  padding:10px 13px;font-size:11px;color:var(--cinza);
+  line-height:1.7;display:none;
+}
+#walk-hint.visivel{display:block}
+#walk-hint strong{color:var(--papel)}
+
 @media(max-width:640px){
   #painel{width:100%;height:auto;bottom:auto;border-right:none;border-bottom:1px solid var(--borda)}
   #info-box{top:auto;bottom:16px;right:8px;left:8px;width:auto}
   #coords{display:none}
+  #btn-walk,#walk-hint{display:none}
 }
 </style>
 </head>
@@ -198,10 +243,10 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   <div class="temas-wrap">
     <p class="temas-label">Indicador exibido</p>
     <div class="temas-grid">
-      <button class="btn-tema ativo" data-tema="renda">Renda p.c.</button>
+      <button class="btn-tema ativo" data-tema="renda_pc">Renda p.c.</button>
       <button class="btn-tema" data-tema="densidade">Densidade</button>
       <button class="btn-tema" data-tema="escolaridade">Escolaridade</button>
-      <button class="btn-tema" data-tema="emprego">Emprego formal</button>
+      <button class="btn-tema" data-tema="emprego_formal">Emprego formal</button>
     </div>
   </div>
 
@@ -253,18 +298,36 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
     <div class="ib-metrica" id="ib-escol">
       <div class="ib-m-label">Escolaridade</div>
       <div class="ib-m-val" id="ib-escol-v">—</div>
-      <div class="ib-m-unit">anos estudo</div>
+      <div class="ib-m-unit">% alfabetizados</div>
     </div>
     <div class="ib-metrica" id="ib-emp">
       <div class="ib-m-label">Emprego formal</div>
       <div class="ib-m-val" id="ib-emp-v">—</div>
-      <div class="ib-m-unit">% ocupados</div>
+      <div class="ib-m-unit">pessoas</div>
     </div>
   </div>
   <div class="ib-footer" id="ib-footer"></div>
 </div>
 
 <div id="coords"></div>
+
+<!-- Crosshair do modo de navegação -->
+<div id="crosshair"><div id="crosshair-dot"></div></div>
+
+<!-- Botão de modo de navegação -->
+<button id="btn-walk" title="Navegar pelo mapa com teclado">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="5" r="2"/><path d="M12 7v5l-3 5m3-5 3 5M9 10h6"/>
+  </svg>
+  <span id="btn-walk-txt">Navegar</span>
+</button>
+
+<!-- Dica de teclado -->
+<div id="walk-hint">
+  <strong>W A S D</strong> ou <strong>↑ ← ↓ →</strong> mover<br>
+  <strong>Shift</strong> velocidade rápida<br>
+  <strong>Esc</strong> sair do modo
+</div>
 
 <script>
 'use strict';
@@ -275,24 +338,24 @@ const VISTAS = [
 ];
 
 const TEMAS = {
-  renda:        {label:'Renda per capita',unit:'R$/mês',      fmt:v=>`R$ ${v.toLocaleString('pt-BR')}`},
-  densidade:    {label:'Densidade demogr.',unit:'hab/km²',    fmt:v=>v.toLocaleString('pt-BR')},
-  escolaridade: {label:'Escolaridade média',unit:'anos',      fmt:v=>`${v.toFixed(1)} anos`},
-  emprego:      {label:'Emprego formal',unit:'% form.',       fmt:v=>`${v.toFixed(1)}%`},
+  renda_pc:      {label:'Renda per capita',unit:'R$/mês',      fmt:v=>`R$ ${v.toLocaleString('pt-BR')}`},
+  densidade:     {label:'Densidade demogr.',unit:'hab/km²',    fmt:v=>v.toLocaleString('pt-BR')},
+  escolaridade:  {label:'Escolaridade média',unit:'%',         fmt:v=>`${v.toFixed(1)}%`},
+  emprego_formal:{label:'Emprego formal',unit:'pessoas',       fmt:v=>v.toLocaleString('pt-BR')},
 };
 
 // ColorBrewer 6-class sequenciais
 const CORES = {
-  renda:        ['#FFF7F3','#FDE0DD','#FCA9A2','#F76761','#D2202B','#85000B'],
-  densidade:    ['#EFF3FF','#C6DBEF','#9ECAE1','#4292C6','#1C6CB5','#084594'],
-  escolaridade: ['#EDF8FB','#BFD3E6','#9EBCDA','#8C96C6','#8856A7','#810F7C'],
-  emprego:      ['#FFFBD5','#FED98E','#FE9929','#D95F0E','#993404','#662201'],
+  renda_pc:      ['#FFF7F3','#FDE0DD','#FCA9A2','#F76761','#D2202B','#85000B'],
+  densidade:     ['#EFF3FF','#C6DBEF','#9ECAE1','#4292C6','#1C6CB5','#084594'],
+  escolaridade:  ['#EDF8FB','#BFD3E6','#9EBCDA','#8C96C6','#8856A7','#810F7C'],
+  emprego_formal:['#FFFBD5','#FED98E','#FE9929','#D95F0E','#993404','#662201'],
 };
 
 // ── Estado ──
 let mapa = null;
 let dadosBairros = {};
-let temaAtual = 'renda';
+let temaAtual = 'renda_pc';
 let hoverId = null;
 
 // ── Inicialização ──
@@ -372,6 +435,7 @@ async function init() {
   setupBusca();
   setupTemas();
   setupNav();
+  setupWalk();
 }
 
 // ── Estilo base (satélite ESRI + fontes OSM) ──
@@ -493,17 +557,17 @@ function mostrarInfo(props) {
   document.getElementById('ib-escol-v').textContent =
     `${(d.escolaridade||0).toFixed(1)}`;
   document.getElementById('ib-emp-v').textContent =
-    `${(d.emprego_formal||0).toFixed(1)}%`;
+    (d.emprego_formal||0).toLocaleString('pt-BR');
 
   // Destaca a métrica ativa
   ['renda','dens','escol','emp'].forEach(k =>
     document.getElementById(`ib-${k}`).classList.remove('destaque'));
-  const mapa_tema = {renda:'renda',densidade:'dens',escolaridade:'escol',emprego:'emp'};
+  const mapa_tema = {renda_pc:'renda', densidade:'dens', escolaridade:'escol', emprego_formal:'emp'};
   const el = document.getElementById(`ib-${mapa_tema[temaAtual]}`);
   if (el) el.classList.add('destaque');
 
   document.getElementById('ib-footer').textContent =
-    `Pop. estimada: ${(d.populacao||0).toLocaleString('pt-BR')} hab · ` +
+    `Populacao: ${(d.populacao||0).toLocaleString('pt-BR')} hab · ` +
     `Área: ${(d.area_km2||0).toFixed(2)} km²`;
 }
 
@@ -614,6 +678,103 @@ function setupBusca() {
         mapa.flyTo({center:[lon,lat], zoom:16, duration:1600, essential:true});
       });
     });
+  }
+}
+
+// ── Modo de navegação (City Skylines–style) ──
+let walkMode = false;
+let walkKeys = {};
+let walkTimer = null;
+let bairroAtualWalk = null;
+let walkSetupDone = false;
+
+function setupWalk() {
+  if (walkSetupDone) return;
+  walkSetupDone = true;
+  const btn = document.getElementById('btn-walk');
+  const cross = document.getElementById('crosshair');
+  const hint = document.getElementById('walk-hint');
+
+  btn.addEventListener('click', () => {
+    walkMode ? sairWalk() : entrarWalk();
+  });
+
+  function entrarWalk() {
+    walkMode = true;
+    btn.classList.add('ativo');
+    document.getElementById('btn-walk-txt').textContent = 'Sair';
+    cross.classList.add('visivel');
+    hint.classList.add('visivel');
+
+    // Zoom para nível de rua
+    mapa.easeTo({zoom: Math.max(mapa.getZoom(), 16), duration: 800});
+
+    // Desativa interação de arrastar (navegação vai ser pelo teclado)
+    mapa.dragPan.disable();
+    mapa.scrollZoom.disable();
+    mapa.doubleClickZoom.disable();
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    walkTimer = setInterval(doWalk, 40);
+    document.getElementById('busca').setAttribute('tabindex', '-1');
+  }
+
+  function sairWalk() {
+    walkMode = false;
+    btn.classList.remove('ativo');
+    document.getElementById('btn-walk-txt').textContent = 'Navegar';
+    cross.classList.remove('visivel');
+    hint.classList.remove('visivel');
+    bairroAtualWalk = null;
+
+    mapa.dragPan.enable();
+    mapa.scrollZoom.enable();
+    mapa.doubleClickZoom.enable();
+
+    window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('keyup', onKeyUp);
+    clearInterval(walkTimer);
+    document.getElementById('busca').removeAttribute('tabindex');
+  }
+
+  function onKeyDown(e) {
+    walkKeys[e.key] = true;
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))
+      e.preventDefault();
+    if (e.key === 'Escape') sairWalk();
+  }
+  function onKeyUp(e) { delete walkKeys[e.key]; }
+
+  function doWalk() {
+    if (!walkMode) return;
+    const vel = (walkKeys['Shift'] ? 0.0006 : 0.00018) / (mapa.getZoom() / 16);
+    let dx = 0, dy = 0;
+    if (walkKeys['ArrowLeft']  || walkKeys['a'] || walkKeys['A']) dx -= vel;
+    if (walkKeys['ArrowRight'] || walkKeys['d'] || walkKeys['D']) dx += vel;
+    if (walkKeys['ArrowUp']    || walkKeys['w'] || walkKeys['W']) dy += vel;
+    if (walkKeys['ArrowDown']  || walkKeys['s'] || walkKeys['S']) dy -= vel;
+    if (dx === 0 && dy === 0) return;
+
+    const c = mapa.getCenter();
+    mapa.jumpTo({center: [c.lng + dx, c.lat + dy]});
+    detectarBairroNocentro();
+  }
+
+  function detectarBairroNocentro() {
+    const canvas = mapa.getCanvas();
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const feats = mapa.queryRenderedFeatures([cx, cy], {layers: ['bairros-fill']});
+    if (!feats.length) return;
+    const cod = String(feats[0].properties.codigobairro);
+    if (cod === bairroAtualWalk) return;
+    bairroAtualWalk = cod;
+    // Limpa hover anterior
+    if (hoverId !== null) {
+      mapa.setFeatureState({source:'bairros', id:hoverId}, {hover:false});
+      hoverId = null;
+    }
+    mostrarInfo(feats[0].properties);
   }
 }
 
