@@ -1,0 +1,772 @@
+{
+  "1": {
+    "nome": "BELA VISTA",
+    "area_km2": 2.215,
+    "populacao": 13418,
+    "densidade": 6058,
+    "renda_pc": 2430,
+    "escolaridade": 11.6,
+    "emprego_formal": 65.5,
+    "perfil": "urbano_alto"
+  },
+  "2": {
+    "nome": "CENTRO",
+    "area_km2": 1.486,
+    "populacao": 20644,
+    "densidade": 13892,
+    "renda_pc": 4553,
+    "escolaridade": 14.2,
+    "emprego_formal": 69.0,
+    "perfil": "central_rico"
+  },
+  "3": {
+    "nome": "CINQUENTENÁRIO",
+    "area_km2": 1.118,
+    "populacao": 12717,
+    "densidade": 11375,
+    "renda_pc": 3260,
+    "escolaridade": 12.5,
+    "emprego_formal": 74.1,
+    "perfil": "central_rico"
+  },
+  "4": {
+    "nome": "CRISTO REDENTOR",
+    "area_km2": 0.976,
+    "populacao": 2055,
+    "densidade": 2106,
+    "renda_pc": 1699,
+    "escolaridade": 9.9,
+    "emprego_formal": 60.5,
+    "perfil": "urbano_medio"
+  },
+  "5": {
+    "nome": "CRUZEIRO",
+    "area_km2": 3.219,
+    "populacao": 9277,
+    "densidade": 2882,
+    "renda_pc": 2089,
+    "escolaridade": 10.4,
+    "emprego_formal": 54.1,
+    "perfil": "urbano_medio"
+  },
+  "6": {
+    "nome": "DE LAZZER",
+    "area_km2": 0.502,
+    "populacao": 838,
+    "densidade": 1670,
+    "renda_pc": 2058,
+    "escolaridade": 8.9,
+    "emprego_formal": 67.9,
+    "perfil": "industrial"
+  },
+  "7": {
+    "nome": "DESVIO RIZZO",
+    "area_km2": 4.527,
+    "populacao": 8724,
+    "densidade": 1927,
+    "renda_pc": 1769,
+    "escolaridade": 8.2,
+    "emprego_formal": 67.2,
+    "perfil": "industrial"
+  },
+  "8": {
+    "nome": "DIAMANTINO",
+    "area_km2": 2.844,
+    "populacao": 19595,
+    "densidade": 6890,
+    "renda_pc": 3124,
+    "escolaridade": 12.6,
+    "emprego_formal": 71.0,
+    "perfil": "urbano_alto"
+  },
+  "9": {
+    "nome": "ESPLANADA",
+    "area_km2": 2.63,
+    "populacao": 32323,
+    "densidade": 12290,
+    "renda_pc": 5146,
+    "escolaridade": 12.9,
+    "emprego_formal": 74.6,
+    "perfil": "central_rico"
+  },
+  "10": {
+    "nome": "EXPOSIÇÃO",
+    "area_km2": 0.919,
+    "populacao": 4887,
+    "densidade": 5318,
+    "renda_pc": 2118,
+    "escolaridade": 10.6,
+    "emprego_formal": 60.9,
+    "perfil": "urbano_medio"
+  },
+  "11": {
+    "nome": "JARDELINO RAMOS",
+    "area_km2": 0.398,
+    "populacao": 3333,
+    "densidade": 8375,
+    "renda_pc": 2064,
+    "escolaridade": 10.6,
+    "emprego_formal": 64.5,
+    "perfil": "central_medio"
+  },
+  "12": {
+    "nome": "JARDIM AMÉRICA",
+    "area_km2": 0.939,
+    "populacao": 4638,
+    "densidade": 4939,
+    "renda_pc": 2326,
+    "escolaridade": 10.3,
+    "emprego_formal": 64.3,
+    "perfil": "central_medio"
+  },
+  "14": {
+    "nome": "KAYSER",
+    "area_km2": 0.936,
+    "populacao": 7484,
+    "densidade": 7996,
+    "renda_pc": 2511,
+    "escolaridade": 10.9,
+    "emprego_formal": 63.5,
+    "perfil": "central_medio"
+  },
+  "15": {
+    "nome": "N. SRA. DE LOURDES",
+    "area_km2": 1.273,
+    "populacao": 12903,
+    "densidade": 10136,
+    "renda_pc": 5073,
+    "escolaridade": 13.6,
+    "emprego_formal": 75.3,
+    "perfil": "central_rico"
+  },
+  "16": {
+    "nome": "MADUREIRA",
+    "area_km2": 0.632,
+    "populacao": 3439,
+    "densidade": 5441,
+    "renda_pc": 3021,
+    "escolaridade": 10.4,
+    "emprego_formal": 65.6,
+    "perfil": "central_medio"
+  },
+  "17": {
+    "nome": "MARECHAL FLORIANO",
+    "area_km2": 1.091,
+    "populacao": 10847,
+    "densidade": 9942,
+    "renda_pc": 2896,
+    "escolaridade": 11.4,
+    "emprego_formal": 69.2,
+    "perfil": "central_medio"
+  },
+  "19": {
+    "nome": "MEDIANEIRA",
+    "area_km2": 0.323,
+    "populacao": 2951,
+    "densidade": 9136,
+    "renda_pc": 3086,
+    "escolaridade": 10.6,
+    "emprego_formal": 61.4,
+    "perfil": "central_medio"
+  },
+  "20": {
+    "nome": "N. SRA. DE FÁTIMA",
+    "area_km2": 1.804,
+    "populacao": 8591,
+    "densidade": 4762,
+    "renda_pc": 2721,
+    "escolaridade": 11.4,
+    "emprego_formal": 73.4,
+    "perfil": "urbano_alto"
+  },
+  "21": {
+    "nome": "PANAZZOLO",
+    "area_km2": 1.243,
+    "populacao": 11585,
+    "densidade": 9320,
+    "renda_pc": 2440,
+    "escolaridade": 11.6,
+    "emprego_formal": 65.7,
+    "perfil": "central_medio"
+  },
+  "22": {
+    "nome": "PETRÓPOLIS",
+    "area_km2": 1.571,
+    "populacao": 24061,
+    "densidade": 15316,
+    "renda_pc": 4118,
+    "escolaridade": 12.7,
+    "emprego_formal": 71.0,
+    "perfil": "central_rico"
+  },
+  "23": {
+    "nome": "PIO X",
+    "area_km2": 1.13,
+    "populacao": 8574,
+    "densidade": 7588,
+    "renda_pc": 2368,
+    "escolaridade": 11.5,
+    "emprego_formal": 71.8,
+    "perfil": "central_medio"
+  },
+  "24": {
+    "nome": "PIONEIRO",
+    "area_km2": 1.065,
+    "populacao": 7132,
+    "densidade": 6697,
+    "renda_pc": 2307,
+    "escolaridade": 12.5,
+    "emprego_formal": 67.1,
+    "perfil": "central_medio"
+  },
+  "25": {
+    "nome": "PLANALTO",
+    "area_km2": 1.355,
+    "populacao": 6775,
+    "densidade": 5000,
+    "renda_pc": 2066,
+    "escolaridade": 10.3,
+    "emprego_formal": 68.5,
+    "perfil": "central_medio"
+  },
+  "26": {
+    "nome": "RIO BRANCO",
+    "area_km2": 2.002,
+    "populacao": 28703,
+    "densidade": 14337,
+    "renda_pc": 4044,
+    "escolaridade": 12.2,
+    "emprego_formal": 72.6,
+    "perfil": "central_rico"
+  },
+  "27": {
+    "nome": "SÃO CIRO",
+    "area_km2": 2.332,
+    "populacao": 13955,
+    "densidade": 5984,
+    "renda_pc": 2029,
+    "escolaridade": 10.9,
+    "emprego_formal": 64.3,
+    "perfil": "urbano_medio"
+  },
+  "28": {
+    "nome": "SÃO LEOPOLDO",
+    "area_km2": 0.829,
+    "populacao": 3783,
+    "densidade": 4563,
+    "renda_pc": 3009,
+    "escolaridade": 11.7,
+    "emprego_formal": 67.4,
+    "perfil": "central_medio"
+  },
+  "29": {
+    "nome": "SÃO PELEGRINO",
+    "area_km2": 0.761,
+    "populacao": 7713,
+    "densidade": 10135,
+    "renda_pc": 4482,
+    "escolaridade": 12.3,
+    "emprego_formal": 73.2,
+    "perfil": "central_rico"
+  },
+  "30": {
+    "nome": "SALGADO FILHO",
+    "area_km2": 2.13,
+    "populacao": 8126,
+    "densidade": 3815,
+    "renda_pc": 2454,
+    "escolaridade": 10.6,
+    "emprego_formal": 57.2,
+    "perfil": "urbano_medio"
+  },
+  "31": {
+    "nome": "SAGRADA FAMÍLIA",
+    "area_km2": 0.975,
+    "populacao": 7072,
+    "densidade": 7253,
+    "renda_pc": 2250,
+    "escolaridade": 12.3,
+    "emprego_formal": 71.4,
+    "perfil": "central_medio"
+  },
+  "32": {
+    "nome": "SÃO JOSÉ",
+    "area_km2": 1.126,
+    "populacao": 3596,
+    "densidade": 3194,
+    "renda_pc": 2139,
+    "escolaridade": 9.8,
+    "emprego_formal": 55.8,
+    "perfil": "urbano_medio"
+  },
+  "33": {
+    "nome": "SANTA CATARINA",
+    "area_km2": 0.94,
+    "populacao": 6157,
+    "densidade": 6550,
+    "renda_pc": 3047,
+    "escolaridade": 12.6,
+    "emprego_formal": 68.8,
+    "perfil": "urbano_alto"
+  },
+  "34": {
+    "nome": "UNIVERSITÁRIO",
+    "area_km2": 0.627,
+    "populacao": 5019,
+    "densidade": 8005,
+    "renda_pc": 3848,
+    "escolaridade": 12.0,
+    "emprego_formal": 79.1,
+    "perfil": "central_rico"
+  },
+  "35": {
+    "nome": "SANTA FÉ",
+    "area_km2": 2.524,
+    "populacao": 13920,
+    "densidade": 5515,
+    "renda_pc": 2332,
+    "escolaridade": 8.9,
+    "emprego_formal": 54.7,
+    "perfil": "urbano_medio"
+  },
+  "36": {
+    "nome": "SÃO VIRGÍLIO",
+    "area_km2": 6.468,
+    "populacao": 29578,
+    "densidade": 4573,
+    "renda_pc": 1558,
+    "escolaridade": 5.8,
+    "emprego_formal": 50.3,
+    "perfil": "periferico"
+  },
+  "37": {
+    "nome": "SÃO CAETANO",
+    "area_km2": 2.746,
+    "populacao": 4784,
+    "densidade": 1742,
+    "renda_pc": 1408,
+    "escolaridade": 8.2,
+    "emprego_formal": 44.9,
+    "perfil": "periferico"
+  },
+  "38": {
+    "nome": "PRESIDENTE VARGAS",
+    "area_km2": 1.158,
+    "populacao": 6254,
+    "densidade": 5401,
+    "renda_pc": 3060,
+    "escolaridade": 11.5,
+    "emprego_formal": 72.6,
+    "perfil": "urbano_alto"
+  },
+  "40": {
+    "nome": "FLORESTA",
+    "area_km2": 0.316,
+    "populacao": 2157,
+    "densidade": 6827,
+    "renda_pc": 2296,
+    "escolaridade": 11.3,
+    "emprego_formal": 69.8,
+    "perfil": "central_medio"
+  },
+  "41": {
+    "nome": "SÃO CRISTÓVÃO",
+    "area_km2": 3.419,
+    "populacao": 9590,
+    "densidade": 2805,
+    "renda_pc": 1812,
+    "escolaridade": 11.0,
+    "emprego_formal": 61.8,
+    "perfil": "urbano_medio"
+  },
+  "42": {
+    "nome": "JARDIM ELDORADO",
+    "area_km2": 1.378,
+    "populacao": 4179,
+    "densidade": 3033,
+    "renda_pc": 1214,
+    "escolaridade": 5.9,
+    "emprego_formal": 46.4,
+    "perfil": "periferico"
+  },
+  "43": {
+    "nome": "CHARQUEADAS",
+    "area_km2": 3.4,
+    "populacao": 9122,
+    "densidade": 2683,
+    "renda_pc": 1271,
+    "escolaridade": 6.3,
+    "emprego_formal": 46.3,
+    "perfil": "periferico"
+  },
+  "44": {
+    "nome": "PÔR DO SOL",
+    "area_km2": 0.271,
+    "populacao": 1325,
+    "densidade": 4890,
+    "renda_pc": 2884,
+    "escolaridade": 10.6,
+    "emprego_formal": 71.9,
+    "perfil": "central_medio"
+  },
+  "45": {
+    "nome": "SERRANO",
+    "area_km2": 6.982,
+    "populacao": 31482,
+    "densidade": 4509,
+    "renda_pc": 857,
+    "escolaridade": 6.3,
+    "emprego_formal": 53.0,
+    "perfil": "periferico"
+  },
+  "46": {
+    "nome": "N. SRA. DA SAÚDE",
+    "area_km2": 4.018,
+    "populacao": 9040,
+    "densidade": 2250,
+    "renda_pc": 906,
+    "escolaridade": 8.8,
+    "emprego_formal": 51.6,
+    "perfil": "periferico"
+  },
+  "50": {
+    "nome": "INTERLAGOS",
+    "area_km2": 1.832,
+    "populacao": 7128,
+    "densidade": 3891,
+    "renda_pc": 2285,
+    "escolaridade": 10.4,
+    "emprego_formal": 56.3,
+    "perfil": "urbano_medio"
+  },
+  "51": {
+    "nome": "CIDADE NOVA",
+    "area_km2": 3.038,
+    "populacao": 7255,
+    "densidade": 2388,
+    "renda_pc": 1931,
+    "escolaridade": 9.3,
+    "emprego_formal": 59.6,
+    "perfil": "urbano_medio"
+  },
+  "52": {
+    "nome": "N. SRA. DO ROSÁRIO",
+    "area_km2": 1.354,
+    "populacao": 6656,
+    "densidade": 4916,
+    "renda_pc": 2173,
+    "escolaridade": 11.0,
+    "emprego_formal": 55.2,
+    "perfil": "urbano_medio"
+  },
+  "53": {
+    "nome": "N. SRA. DAS GRAÇAS",
+    "area_km2": 4.721,
+    "populacao": 17043,
+    "densidade": 3610,
+    "renda_pc": 1839,
+    "escolaridade": 10.6,
+    "emprego_formal": 57.0,
+    "perfil": "urbano_medio"
+  },
+  "54": {
+    "nome": "CENTENÁRIO",
+    "area_km2": 0.821,
+    "populacao": 4553,
+    "densidade": 5546,
+    "renda_pc": 2628,
+    "escolaridade": 11.1,
+    "emprego_formal": 64.3,
+    "perfil": "central_medio"
+  },
+  "55": {
+    "nome": "PEDANCINO",
+    "area_km2": 5.085,
+    "populacao": 15250,
+    "densidade": 2999,
+    "renda_pc": 2423,
+    "escolaridade": 9.3,
+    "emprego_formal": 64.3,
+    "perfil": "urbano_medio"
+  },
+  "57": {
+    "nome": "MAESTRA",
+    "area_km2": 4.433,
+    "populacao": 18623,
+    "densidade": 4201,
+    "renda_pc": 1551,
+    "escolaridade": 11.0,
+    "emprego_formal": 64.0,
+    "perfil": "urbano_medio"
+  },
+  "61": {
+    "nome": "SAMUARA",
+    "area_km2": 7.329,
+    "populacao": 35853,
+    "densidade": 4892,
+    "renda_pc": 1541,
+    "escolaridade": 8.5,
+    "emprego_formal": 45.5,
+    "perfil": "periferico"
+  },
+  "62": {
+    "nome": "SANVITTO",
+    "area_km2": 1.844,
+    "populacao": 10037,
+    "densidade": 5443,
+    "renda_pc": 2656,
+    "escolaridade": 11.8,
+    "emprego_formal": 63.6,
+    "perfil": "urbano_alto"
+  },
+  "63": {
+    "nome": "JD. DAS HORTÊNSIAS",
+    "area_km2": 2.169,
+    "populacao": 7626,
+    "densidade": 3516,
+    "renda_pc": 2485,
+    "escolaridade": 8.8,
+    "emprego_formal": 63.4,
+    "perfil": "urbano_medio"
+  },
+  "64": {
+    "nome": "SÃO LUIZ",
+    "area_km2": 3.981,
+    "populacao": 15207,
+    "densidade": 3820,
+    "renda_pc": 1923,
+    "escolaridade": 10.9,
+    "emprego_formal": 65.9,
+    "perfil": "urbano_medio"
+  },
+  "65": {
+    "nome": "JARDIM IRACEMA",
+    "area_km2": 7.292,
+    "populacao": 25121,
+    "densidade": 3445,
+    "renda_pc": 1375,
+    "escolaridade": 6.0,
+    "emprego_formal": 47.5,
+    "perfil": "periferico"
+  },
+  "66": {
+    "nome": "PARADA CRISTAL",
+    "area_km2": 6.36,
+    "populacao": 31100,
+    "densidade": 4890,
+    "renda_pc": 1263,
+    "escolaridade": 7.4,
+    "emprego_formal": 54.2,
+    "perfil": "periferico"
+  },
+  "67": {
+    "nome": "SÃO VICTOR COHAB",
+    "area_km2": 2.322,
+    "populacao": 3947,
+    "densidade": 1700,
+    "renda_pc": 1267,
+    "escolaridade": 7.3,
+    "emprego_formal": 55.8,
+    "perfil": "periferico"
+  },
+  "84": {
+    "nome": "FORQUETA",
+    "area_km2": 9.637,
+    "populacao": 626,
+    "densidade": 65,
+    "renda_pc": 1376,
+    "escolaridade": 4.7,
+    "emprego_formal": 39.0,
+    "perfil": "rural"
+  },
+  "85": {
+    "nome": "GALÓPOLIS",
+    "area_km2": 1.64,
+    "populacao": 945,
+    "densidade": 576,
+    "renda_pc": 1640,
+    "escolaridade": 7.1,
+    "emprego_formal": 45.7,
+    "perfil": "semi_rural"
+  },
+  "4993": {
+    "nome": "SÃO GIÁCOMO",
+    "area_km2": 4.369,
+    "populacao": 3548,
+    "densidade": 812,
+    "renda_pc": 1297,
+    "escolaridade": 8.0,
+    "emprego_formal": 52.7,
+    "perfil": "semi_rural"
+  },
+  "4994": {
+    "nome": "MONTE BÉRICO",
+    "area_km2": 10.104,
+    "populacao": 4395,
+    "densidade": 435,
+    "renda_pc": 1567,
+    "escolaridade": 7.8,
+    "emprego_formal": 57.1,
+    "perfil": "semi_rural"
+  },
+  "4996": {
+    "nome": "ANA RECH",
+    "area_km2": 17.736,
+    "populacao": 4665,
+    "densidade": 263,
+    "renda_pc": 1673,
+    "escolaridade": 7.1,
+    "emprego_formal": 49.5,
+    "perfil": "semi_rural"
+  },
+  "4997": {
+    "nome": "BRANDALISE",
+    "area_km2": 3.308,
+    "populacao": 2107,
+    "densidade": 637,
+    "renda_pc": 1340,
+    "escolaridade": 7.3,
+    "emprego_formal": 54.5,
+    "perfil": "semi_rural"
+  },
+  "4998": {
+    "nome": "LINHA 40",
+    "area_km2": 6.692,
+    "populacao": 308,
+    "densidade": 46,
+    "renda_pc": 1075,
+    "escolaridade": 7.5,
+    "emprego_formal": 51.9,
+    "perfil": "rural"
+  },
+  "4999": {
+    "nome": "SANTA CORONA",
+    "area_km2": 2.436,
+    "populacao": 387,
+    "densidade": 159,
+    "renda_pc": 1270,
+    "escolaridade": 7.2,
+    "emprego_formal": 57.1,
+    "perfil": "semi_rural"
+  },
+  "6200": {
+    "nome": "INDUSTRIAL",
+    "area_km2": 3.32,
+    "populacao": 5969,
+    "densidade": 1798,
+    "renda_pc": 2203,
+    "escolaridade": 8.9,
+    "emprego_formal": 67.9,
+    "perfil": "industrial"
+  },
+  "6202": {
+    "nome": "VINHEDOS",
+    "area_km2": 2.619,
+    "populacao": 2009,
+    "densidade": 767,
+    "renda_pc": 1663,
+    "escolaridade": 8.0,
+    "emprego_formal": 57.8,
+    "perfil": "semi_rural"
+  },
+  "6602": {
+    "nome": "N. SRA. DA CONCEIÇÃO",
+    "area_km2": 4.832,
+    "populacao": 3010,
+    "densidade": 623,
+    "renda_pc": 1106,
+    "escolaridade": 8.5,
+    "emprego_formal": 48.2,
+    "perfil": "semi_rural"
+  },
+  "6603": {
+    "nome": "VILA LOBOS",
+    "area_km2": 1.691,
+    "populacao": 6463,
+    "densidade": 3822,
+    "renda_pc": 1551,
+    "escolaridade": 6.0,
+    "emprego_formal": 44.7,
+    "perfil": "periferico"
+  },
+  "6606": {
+    "nome": "BELO HORIZONTE",
+    "area_km2": 0.96,
+    "populacao": 3771,
+    "densidade": 3928,
+    "renda_pc": 3064,
+    "escolaridade": 11.5,
+    "emprego_formal": 69.7,
+    "perfil": "urbano_alto"
+  },
+  "6607": {
+    "nome": "DE ZORZI",
+    "area_km2": 2.406,
+    "populacao": 11717,
+    "densidade": 4870,
+    "renda_pc": 1704,
+    "escolaridade": 9.9,
+    "emprego_formal": 57.2,
+    "perfil": "urbano_medio"
+  },
+  "6609": {
+    "nome": "VILA VERDE",
+    "area_km2": 0.762,
+    "populacao": 3013,
+    "densidade": 3954,
+    "renda_pc": 2405,
+    "escolaridade": 10.5,
+    "emprego_formal": 55.1,
+    "perfil": "urbano_medio"
+  },
+  "6610": {
+    "nome": "SANTA LÚCIA",
+    "area_km2": 2.615,
+    "populacao": 9660,
+    "densidade": 3694,
+    "renda_pc": 1777,
+    "escolaridade": 8.0,
+    "emprego_formal": 63.3,
+    "perfil": "urbano_medio"
+  },
+  "6611": {
+    "nome": "TIJUCA",
+    "area_km2": 1.171,
+    "populacao": 5326,
+    "densidade": 4548,
+    "renda_pc": 1762,
+    "escolaridade": 10.2,
+    "emprego_formal": 60.6,
+    "perfil": "urbano_medio"
+  },
+  "6612": {
+    "nome": "REOLON",
+    "area_km2": 1.488,
+    "populacao": 5522,
+    "densidade": 3711,
+    "renda_pc": 1510,
+    "escolaridade": 8.2,
+    "emprego_formal": 64.6,
+    "perfil": "urbano_medio"
+  },
+  "6613": {
+    "nome": "COLINA SORRISO",
+    "area_km2": 1.185,
+    "populacao": 6655,
+    "densidade": 5616,
+    "renda_pc": 2046,
+    "escolaridade": 10.5,
+    "emprego_formal": 61.0,
+    "perfil": "urbano_medio"
+  },
+  "6614": {
+    "nome": "SÉCULO XX",
+    "area_km2": 6.325,
+    "populacao": 12764,
+    "densidade": 2018,
+    "renda_pc": 902,
+    "escolaridade": 6.6,
+    "emprego_formal": 56.5,
+    "perfil": "periferico"
+  }
+}
