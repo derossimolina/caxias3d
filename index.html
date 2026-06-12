@@ -102,12 +102,43 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .btn-v:hover{border-color:var(--vinho-c)}
 .btn-v.ativo{background:var(--vinho);border-color:var(--vinho)}
 
-/* nota de fonte */
-.fonte-nota{
-  padding:10px 12px;font-size:10px;color:var(--cinza);
-  line-height:1.5;flex-shrink:0;
+/* lista de bairros da região */
+.bairros-lista{
+  padding:6px 12px 10px;border-bottom:1px solid var(--borda);flex-shrink:0;
+  display:none;
 }
-.fonte-nota a{color:var(--acento);text-decoration:none}
+.bairros-lista.visivel{display:block}
+.bairros-lista-titulo{font-size:9px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--cinza);margin-bottom:5px}
+.bairros-lista-tags{display:flex;flex-wrap:wrap;gap:3px}
+.bairro-tag{
+  font-size:9.5px;color:var(--cinza);
+  background:var(--bg3);border:1px solid var(--borda);
+  border-radius:4px;padding:2px 6px;line-height:1.4;
+}
+
+/* rodapé do painel */
+.painel-footer{
+  margin-top:auto;padding:10px 12px;border-top:1px solid var(--borda);
+  flex-shrink:0;display:flex;flex-direction:column;gap:6px;
+}
+.btn-fontes{
+  align-self:flex-start;
+  font-size:9px;color:var(--cinza);background:none;
+  border:1px solid var(--borda);border-radius:5px;
+  padding:3px 8px;cursor:pointer;transition:border-color .15s;
+}
+.btn-fontes:hover{border-color:var(--acento);color:var(--acento)}
+.fontes-detalhe{
+  display:none;font-size:9.5px;color:var(--cinza);line-height:1.6;
+}
+.fontes-detalhe.visivel{display:block}
+.fontes-detalhe a{color:var(--acento);text-decoration:none}
+.copyright{
+  font-size:9px;color:#555;line-height:1.4;
+}
+.copyright a{color:#555;text-decoration:none;transition:color .15s}
+.copyright a:hover{color:var(--cinza)}
 
 /* ── Info box (direita) ── */
 #info-box{
@@ -264,20 +295,33 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
     <p class="nav-label">Ir para</p>
     <nav class="vistas" id="nav-v">
       <button class="btn-v" data-c="-51.179,-29.168" data-z="11.5" data-p="0" data-b="0">Visão Geral</button>
-      <button class="btn-v ativo" data-c="-51.1813,-29.1688" data-z="13.9" data-p="0" data-b="0">Centro</button>
-      <button class="btn-v" data-c="-51.1817,-29.1654" data-z="12.4" data-p="0" data-b="0">C. Expandido</button>
-      <button class="btn-v" data-c="-51.1935,-29.1331" data-z="11.3" data-p="0" data-b="0">Zona Norte</button>
-      <button class="btn-v" data-c="-51.1333,-29.1411" data-z="10.7" data-p="0" data-b="0">Zona Leste</button>
-      <button class="btn-v" data-c="-51.1823,-29.1976" data-z="12.1" data-p="0" data-b="0">Zona Sul</button>
-      <button class="btn-v" data-c="-51.2228,-29.1752" data-z="11.2" data-p="0" data-b="0">Zona Oeste</button>
+      <button class="btn-v ativo" data-c="-51.1813,-29.1688" data-z="13.9" data-p="0" data-b="0" data-regiao="centro">Centro</button>
+      <button class="btn-v" data-c="-51.1817,-29.1654" data-z="12.4" data-p="0" data-b="0" data-regiao="expandido">C. Expandido</button>
+      <button class="btn-v" data-c="-51.1935,-29.1331" data-z="11.3" data-p="0" data-b="0" data-regiao="norte">Zona Norte</button>
+      <button class="btn-v" data-c="-51.1333,-29.1411" data-z="10.7" data-p="0" data-b="0" data-regiao="leste">Zona Leste</button>
+      <button class="btn-v" data-c="-51.1823,-29.1976" data-z="12.1" data-p="0" data-b="0" data-regiao="sul">Zona Sul</button>
+      <button class="btn-v" data-c="-51.2228,-29.1752" data-z="11.2" data-p="0" data-b="0" data-regiao="oeste">Zona Oeste</button>
     </nav>
   </div>
 
-  <div class="fonte-nota">
-    Limites: Prefeitura de Caxias do Sul — Lei 8.741/2021<br>
-    Indicadores: IBGE Censo 2022 — população e renda reais por setor censitário<br>
-    Satélite: © Esri, DigitalGlobe<br>
-    <a href="https://nominatim.openstreetmap.org" target="_blank" rel="noopener">Busca via Nominatim/OSM</a>
+  <!-- Lista de bairros da região selecionada -->
+  <div class="bairros-lista" id="bairros-lista">
+    <p class="bairros-lista-titulo" id="bairros-lista-titulo"></p>
+    <div class="bairros-lista-tags" id="bairros-lista-tags"></div>
+  </div>
+
+  <!-- Rodapé do painel -->
+  <div class="painel-footer">
+    <button class="btn-fontes" id="btn-fontes">ℹ Fontes de dados</button>
+    <div class="fontes-detalhe" id="fontes-detalhe">
+      Limites: Prefeitura de Caxias do Sul — Lei 8.741/2021<br>
+      Indicadores: IBGE Censo 2022<br>
+      Satélite: © Esri, DigitalGlobe<br>
+      <a href="https://nominatim.openstreetmap.org" target="_blank" rel="noopener">Busca: Nominatim/OSM</a>
+    </div>
+    <p class="copyright">
+      Copyright © 2026 <a href="https://derossimolina.github.io" target="_blank" rel="noopener">J. de Rossi Molina</a> — All rights reserved
+    </p>
   </div>
 </aside>
 
@@ -591,8 +635,33 @@ function setupTemas() {
   });
 }
 
+// ── Bairros por região ──
+const REGIOES_BAIRROS = {
+  centro:    ['Centro','São Pelegrino','Exposição'],
+  expandido: ['Centro','São Pelegrino','Pio X','Santa Catarina','Jardim América',
+              'Jardelino Ramos','Nossa Senhora de Lourdes','Exposição','Rio Branco','Medianeira'],
+  norte:     ['Colina Sorriso','Santa Lúcia','Vinhedos','São José','Pioneiro',
+              'Nossa Senhora de Fátima','Universitário','Madureira','Interlagos','Centenário',
+              'Pôr do Sol','Nossa Senhora da Saúde','Santa Fé','Belo Horizonte','Pedancino',
+              'Brandalise','Maestra','Monte Bérico','Linha 40'],
+  leste:     ['Século XX','De Lazzer','Presidente Vargas','Sagrada Família','Petrópolis',
+              'São Luiz','Bela Vista','Cruzeiro','De Zorzi','Diamantino','São Ciro',
+              'Jardim das Hortênsias','São Cristóvão','Serrano','Ana Rech',
+              'Jardim Eldorado','Jardim Iracema','Parada Cristal','São Virgílio'],
+  sul:       ['São Leopoldo','Panazzolo','Cristo Redentor','Planalto','Vila Verde',
+              'São Victor Cohab','Salgado Filho','Santa Corona','Vila Lobos',
+              'Nossa Senhora das Graças','Esplanada','São Caetano','Kayser','Galópolis'],
+  oeste:     ['Desvio Rizzo','Nossa Senhora da Conceição','Charqueadas','Sanvitto',
+              'Floresta','Cinquentenário','Marechal Floriano','Cidade Nova','Tijuca',
+              'Reolon','Industrial','Samuara','São Giacomo','Forqueta','Nossa Senhora do Rosário'],
+};
+
 // ── Navegação presets ──
 function setupNav() {
+  const listaDiv  = document.getElementById('bairros-lista');
+  const listaTit  = document.getElementById('bairros-lista-titulo');
+  const listaTags = document.getElementById('bairros-lista-tags');
+
   document.querySelectorAll('#nav-v .btn-v').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#nav-v .btn-v').forEach(b=>b.classList.remove('ativo'));
@@ -605,7 +674,25 @@ function setupNav() {
         bearing:+btn.dataset.b,
         duration:1800, essential:true,
       });
+
+      // Mostra lista de bairros se a região tem dados
+      const regiao = btn.dataset.regiao;
+      const bairros = REGIOES_BAIRROS[regiao];
+      if (bairros) {
+        listaTit.textContent = btn.textContent.trim();
+        listaTags.innerHTML = bairros
+          .map(b => `<span class="bairro-tag">${b}</span>`)
+          .join('');
+        listaDiv.classList.add('visivel');
+      } else {
+        listaDiv.classList.remove('visivel');
+      }
     });
+  });
+
+  // Toggle fontes
+  document.getElementById('btn-fontes').addEventListener('click', () => {
+    document.getElementById('fontes-detalhe').classList.toggle('visivel');
   });
 }
 
