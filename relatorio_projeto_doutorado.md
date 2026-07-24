@@ -13,17 +13,22 @@ Este documento reporta uma análise exploratória da distribuição espacial de
 renda per capita entre os 65 bairros de Caxias do Sul (RS), usando dados
 oficiais do Censo Demográfico 2022 do IBGE agregados por bairro, complementados
 por um proxy de densidade comercial extraído do OpenStreetMap. Um modelo de
-regressão linear (OLS) foi construído incrementalmente, partindo de
-regressores geográficos simples (R² = 0,08) até um modelo final com três
-variáveis — distância ao centro, composição racial e razão de dependência
-etária — que explica **71,6% da variância da renda per capita entre bairros**
-(R² ajustado = 0,702). O achado mais robusto é que a proporção de população
-branca do bairro é o preditor de maior magnitude e significância estatística
-(p < 0,001), superando em poder explicativo variáveis de forma urbana
-(densidade, distância ao centro) isoladamente. Esse resultado é consistente
-com a literatura estabelecida sobre desigualdade racial e segregação
-residencial no Brasil, e abre uma agenda de pesquisa concreta — descrita na
-Seção 7 — para aprofundamento em nível de doutorado.
+regressão linear (OLS) foi construído incrementalmente, partindo de uma
+especificação inicial simples (escolaridade e forma urbana, R² = 0,08) até
+um modelo final com três variáveis — distância ao centro, composição racial
+e razão de dependência etária — que explica **71,6% da variância de
+log(renda per capita) entre bairros** (R² ajustado = 0,702). O achado mais
+robusto é que a proporção de população branca do bairro é o preditor de
+maior peso padronizado do modelo final (beta = 0,795, quase 3× o peso de
+`dist_centro_km`) e o mais significativo estatisticamente (p < 0,001) — ver
+Seção 5.3. Esse resultado é consistente com a literatura estabelecida sobre
+desigualdade racial e segregação residencial no Brasil, e abre uma agenda de
+pesquisa concreta — descrita na Seção 7 — para aprofundamento em nível de
+doutorado. Como qualquer resultado de uma busca de especificação exploratória
+sobre um único conjunto de dados (Seção 4.2), este achado deve ser lido como
+corroboração provisória, não confirmação definitiva — a Seção 7 propõe
+justamente testá-lo de novo, de forma mais rigorosa, com outros dados e
+métodos.
 
 ## 2. Motivação e problema de pesquisa
 
@@ -101,6 +106,37 @@ para penalizar complexidade e reduzir risco de overfitting.
 
 ## 5. Resultados
 
+### 5.0 Clustering
+
+O K-Means (Seção 4.1) convergiu para k=5 clusters, cada um com um perfil
+socioeconômico distinto (renda e densidade médias):
+
+| Cluster | Bairros (n) | Renda média | Densidade média |
+|---|---|---|---|
+| `central_rico` | 17 | R$ 5.626 | 6.103 hab/km² |
+| `central_medio` | 15 | R$ 3.572 | 543 hab/km² |
+| `urbano_medio` | 5 | R$ 3.488 | 6.573 hab/km² |
+| `urbano_popular` | 27 | R$ 3.040 | 3.362 hab/km² |
+| `central_medio_alto_disperso` | 1 | R$ 3.585 | 39 hab/km² |
+
+Dois pontos chamam atenção: o cluster `central_rico` (17 bairros) tem renda
+média quase o dobro do `urbano_popular` (27 bairros, o maior grupo), e
+`urbano_medio` e `central_medio` têm rendas parecidas (R$ 3.488 vs. R$
+3.572) apesar de densidades muito diferentes (6.573 vs. 543 hab/km²) — sinal
+de que densidade sozinha não separa bem esses dois grupos, consistente com
+o achado da regressão (Seção 5.2) de que `pct_branca` explica mais variação
+de renda do que forma urbana. O cluster de 1 bairro isolado
+(`central_medio_alto_disperso`) reflete um caso atípico (baixíssima
+densidade, mas renda mediana) que provavelmente merece inspeção individual
+antes de qualquer uso desses clusters para gerar população sintética no
+GABM (Seção 7, item 4) — um cluster de tamanho 1 não é uma categoria
+estatisticamente estável.
+
+Este clustering substituiu uma classificação heurística anterior (if/elif
+manual sobre limiares arbitrários de renda/densidade) por uma tipologia
+orientada a dado, mas não foi usado como insumo da regressão da Seção 5.1
+em diante — são duas análises complementares, não sequenciais.
+
 ### 5.1 Evolução do modelo
 
 Todos os modelos abaixo usam a mesma variável dependente, `log(renda_pc)`,
@@ -122,8 +158,12 @@ foram recalculados de forma consistente especificamente para esta tabela.
 O modelo 6 tem R² marginalmente menor que o modelo 5 (0,716 vs. 0,730) — a
 escolha do modelo 6 como final não é sobre maximizar R², e sim sobre
 parcimônia: com duas variáveis a menos, o AIC melhora (menor é melhor:
-−36,6 vs. −35,7) e nenhuma variável remanescente perde significância. Ver
-Seção 5.2 para a leitura completa desse trade-off.
+−36,6 vs. −35,7). Uma ressalva de precisão: `razao_dependencia` tem p=0,060
+no modelo final — não atinge o limiar convencional de 5% usado no resto
+deste documento, embora esteja próximo. Ela foi mantida porque sua inclusão
+melhora o AIC (−36,6 com ela vs. −34,8 sem ela) e tem justificativa teórica
+própria (Seção 5.2) — não porque atinja o limiar de 5% de significância.
+Ver Seção 5.2 para a leitura completa desse trade-off.
 
 O detalhamento completo de cada modelo (coeficientes, erros-padrão,
 p-valores, diagnósticos de resíduos) está em `analise_regressao_renda.md` —
@@ -157,20 +197,39 @@ sobre a matriz de regressores crua, incluindo a constante — o que infla o
 número por diferença de escala entre as variáveis, não por colinearidade
 real. Recalculado corretamente (variáveis padronizadas, sem constante), o
 condition index deste modelo é 1,8 — bem abaixo de 30 —, consistente com os
-VIFs. O valor bruto do `statsmodels` também é útil para comparação
-*relativa* entre modelos, com uma ressalva: do Modelo 3 (Cond. No. ≈ 24.800,
-com `escolaridade` e `log(área)`) para o Modelo 4 (Cond. No. ≈ 105, sem
-essas duas variáveis) há uma comparação isolada válida — só essas duas
-variáveis saíram —, e a queda de ~236× confirma que `log(área)` era a
-principal fonte de colinearidade bruta. Já a comparação direta entre o
-Modelo 1 e o modelo final não isola uma única causa: entre um e outro,
-cinco variáveis mudaram (saíram `escolaridade` e `log(área)`; entraram
-densidade comercial, distância ao centro, `pct_branca` e
-`razao_dependencia`, sendo as duas últimas removidas de volta no passo
-final) — o Cond. No. inclusive **sobe** de 105 (Modelo 4) para 2.328
-(Modelo 5) ao entrar `pct_branca`/`razao_dependencia`, antes de cair para
-957 no modelo final. Atribuir a queda de ~24.700 para 957 a uma única
-variável seria uma simplificação indevida da cadeia de mudanças.
+VIFs.
+
+O valor bruto do `statsmodels` também é útil para comparação *relativa*
+entre modelos, mas exige cuidado para não atribuir uma queda a uma variável
+errada quando mais de uma muda ao mesmo tempo. Do Modelo 3 (`escolaridade` +
+`log(densidade)` + `log(área)` + densidade comercial + distância ao centro;
+Cond. No. ≈ 24.800) para o Modelo 4 (tira `escolaridade` e `log(área)`;
+Cond. No. ≈ 105) duas variáveis saem ao mesmo tempo — não dá para atribuir a
+queda a uma delas sem testar cada uma isoladamente. Ao fazer esse teste
+(remover só uma de cada vez a partir do Modelo 3): tirar apenas `log(área)`
+já derruba o Cond. No. para ≈ 110; tirar apenas `escolaridade` o mantém em
+≈ 24.600, praticamente inalterado. Ou seja, `log(área)` era de fato a quase
+totalidade da fonte de colinearidade bruta nesse trecho da cadeia — mas essa
+é uma conclusão de um teste isolado à parte, não uma inferência direta da
+comparação Modelo 3 → Modelo 4.
+
+Essa mesma cautela vale, com mais força, para a comparação entre o Modelo 1
+e o modelo final: nenhum Cond. No. do Modelo 1 é reportado neste documento
+(o valor de ≈24.800 citado acima é do Modelo 3, não do Modelo 1), e entre um
+e outro seis variáveis distintas mudam — saem `escolaridade`, `log(área)` e
+`log(densidade)`; entram densidade comercial, distância ao centro,
+`pct_branca` e `razao_dependencia` (sendo densidade comercial removida de
+volta no passo final, junto com `log(densidade)`; `pct_branca` e
+`razao_dependencia` permanecem no modelo final — ver Tabela 5.1 e a equação
+acima). O Cond. No. nem cai de forma monotônica ao longo dessa cadeia: sobe
+de 105 (Modelo 4) para 2.328 (Modelo 5) ao entrar `pct_branca`/
+`razao_dependencia`, antes de cair para 957 no modelo final ao sair
+`log(densidade)`/densidade comercial. Não há, portanto, uma atribuição de
+causa única defensável para a diferença entre o Cond. No. do Modelo 1 e o
+do modelo final — o dado relevante e já demonstrado é apenas que o modelo
+final (957) está longe de ser preocupante por VIF e pelo condition index
+corretamente calculado (1,8), independentemente de qual comparação de
+Cond. No. bruto se queira fazer.
 
 ### 5.3 Achado central
 
@@ -213,13 +272,22 @@ implica necessariamente a mesma relação no nível individual (Robinson,
 e o primeiro ponto a resolver caso o projeto avance para doutorado (ver
 Seção 7).
 
-**Tamanho de amostra.** N=65 é adequado para um modelo de 3 regressores por
-regras de bolso usuais (ex. Green, 1991: N ≥ 50 + 8k para R² geral, aqui
-50+24=74 — ligeiramente acima do N disponível, um sinal de que o modelo está
-no limite superior do que a amostra sustenta com confiança), mas é pequeno
-para testar especificações mais ricas (interações, nível de flexibilidade
-não-linear) sem risco real de overfitting. Cada nova variável testada neste
-projeto foi avaliada tanto por R² quanto por AIC exatamente por essa razão.
+**Tamanho de amostra.** Green (1991) propõe duas regras de bolso distintas
+para N mínimo, e é importante não misturá-las: N ≥ 50 + 8k para testar o R²
+geral do modelo, e N ≥ 104 + k para testar coeficientes individuais. Com
+k=3, isso dá 74 e 107, respectivamente. N=65 fica abaixo dos dois limiares,
+mas a diferença importa: a maioria das afirmações deste documento (p-valor
+de cada variável, comparação de betas padronizados na Seção 5.3) é sobre
+coeficientes individuais — o teste mais exigente (107) — não sobre o R² do
+modelo como um todo. N=65 está bem abaixo de 107, um sinal mais sério de
+que os p-valores e a ordenação de importância entre as três variáveis devem
+ser lidos com cautela, não apenas como "no limite" da amostra disponível.
+Isso não invalida os resultados, mas reforça que este é um estudo
+exploratório a ser testado de novo com mais dados (Seção 7), não uma
+estimativa definitiva. A amostra também é pequena para testar
+especificações mais ricas (interações, termos não-lineares) sem risco real
+de overfitting — por isso cada variável testada neste projeto foi avaliada
+por R² e por AIC, não só por p-valor.
 
 **Emprego formal não é dado real por bairro.** Como documentado em
 `pipeline_ibge.py` e nas seções anteriores de `analise_regressao_renda.md`,
@@ -244,9 +312,12 @@ prazo, não uma cadeia causal unidirecional.
 ## 7. Agenda de pesquisa (linhas para doutorado / paper)
 
 1. **Segregação racial residencial e renda em cidades médias do interior do
-   Sul do Brasil.** A literatura de segregação racial urbana no Brasil é
-   concentrada em grandes metrópoles (São Paulo, Rio de Janeiro, Salvador —
-   Telles, 2004; Marques & Torres, 2005). Caxias do Sul, com composição racial
+   Sul do Brasil.** A literatura sobre segregação urbana especificamente —
+   como a de Marques & Torres (2005) — é concentrada em grandes metrópoles
+   (o estudo deles é sobre São Paulo); a literatura mais ampla sobre
+   desigualdade racial no Brasil, incluindo Telles (2004), é de escopo
+   nacional mas também tem seu material empírico dominado por grandes
+   centros urbanos. Caxias do Sul, cidade média com composição racial
    atípica para o padrão nacional, é um caso pouco explorado e
    potencialmente informativo por contraste.
 
@@ -306,7 +377,7 @@ GREEN, S. B. How many subjects does it take to do a regression analysis? **Multi
 
 HAIR, J. F.; BLACK, W. C.; BABIN, B. J.; ANDERSON, R. E. **Multivariate Data Analysis**. 8. ed. Andover: Cengage Learning, 2019.
 
-IBGE — INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA. **Censo Demográfico 2022: metodologia**. Rio de Janeiro: IBGE, 2023.
+IBGE — INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA. **Censo Demográfico 2022**. Rio de Janeiro: IBGE, 2023. Disponível em: https://www.ibge.gov.br/estatisticas/sociais/trabalho/22827-censo-demografico-2022.html. Acesso em: 24 jul. 2026.
 
 MACQUEEN, J. Some methods for classification and analysis of multivariate observations. In: **Proceedings of the 5th Berkeley Symposium on Mathematical Statistics and Probability**, v. 1, p. 281–297, 1967.
 
@@ -318,9 +389,9 @@ MODIGLIANI, F.; BRUMBERG, R. Utility analysis and the consumption function: an i
 
 MUTH, R. F. **Cities and Housing**. Chicago: University of Chicago Press, 1969.
 
-OSORIO, R. G. **A desigualdade racial da pobreza no Brasil**. Texto para Discussão n. 2510. Brasília: IPEA, 2019.
+OSORIO, R. G. **A desigualdade racial da pobreza no Brasil**. Texto para Discussão n. 2487. Brasília: IPEA, 2019.
 
-PAIXÃO, M.; CARVANO, L. M. (org.). **Relatório Anual das Desigualdades Raciais no Brasil**. Rio de Janeiro: LAESER/UFRJ, 2008.
+PAIXÃO, M.; CARVANO, L. M. (org.). **Relatório Anual das Desigualdades Raciais no Brasil, 2007-2008**. Rio de Janeiro: Garamond/LAESER-UFRJ, 2008.
 
 PARETO, V. **Cours d'Économie Politique**. Lausanne: F. Rouge, 1896.
 
