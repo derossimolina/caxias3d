@@ -87,7 +87,7 @@ python3 -m http.server 8787   # depois abrir http://localhost:8787
 ## Limitações conhecidas
 
 - A malha de bairros do IBGE cobre só a área urbanizada/loteada — cerca de
-  8% da população municipal (zona rural dispersa) fica fora da análise.
+  4,8% da população municipal (zona rural dispersa) fica fora da análise.
 - `emprego_formal` é estimativa, não medição por bairro (ver tabela acima).
 - `densidade_comercial_osm` é proxy de atividade econômica via OpenStreetMap
   — sujeito a viés de cobertura do mapeamento colaborativo.

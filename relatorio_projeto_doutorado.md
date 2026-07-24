@@ -14,7 +14,7 @@ renda per capita entre os 65 bairros de Caxias do Sul (RS), usando dados
 oficiais do Censo Demográfico 2022 do IBGE agregados por bairro, complementados
 por um proxy de densidade comercial extraído do OpenStreetMap. Um modelo de
 regressão linear (OLS) foi construído incrementalmente, partindo de
-regressores geográficos simples (R² = 0,09) até um modelo final com três
+regressores geográficos simples (R² = 0,08) até um modelo final com três
 variáveis — distância ao centro, composição racial e razão de dependência
 etária — que explica **71,6% da variância da renda per capita entre bairros**
 (R² ajustado = 0,702). O achado mais robusto é que a proporção de população
@@ -70,8 +70,10 @@ A malha geográfica usada é a malha oficial de bairros do IBGE do Censo 2022
 censitário diretamente agregado por bairro, eliminando a necessidade de join
 espacial (ver `pipeline_ibge.py`). Uma limitação decorrente: a malha de
 bairros do IBGE cobre apenas a área urbanizada/loteada da cidade — cerca de
-92% da população municipal está dentro de algum bairro da malha; o restante
-(zona rural dispersa) fica fora da análise.
+95,2% da população municipal está dentro de algum bairro da malha (441.199
+de um total municipal de 463.501 pelo Censo 2022, tabela "Básico" agregada
+por município); o restante — 4,8%, cerca de 22 mil pessoas, majoritariamente
+zona rural dispersa — fica fora da análise.
 
 ## 4. Métodos
 
@@ -101,17 +103,33 @@ para penalizar complexidade e reduzir risco de overfitting.
 
 ### 5.1 Evolução do modelo
 
-| Modelo | Regressores | R² | R² ajustado |
-|---|---|---|---|
-| 1 | escolaridade + log(densidade) + log(área) | 0,092 | 0,048 |
-| 2 | + densidade comercial (OSM) | 0,417 | 0,378 |
-| 3 | + distância ao centro | 0,522 | 0,482 |
-| 4 | apenas log(densidade) + log(densidade comercial) + distância ao centro | 0,504 | 0,480 |
-| 5 | + % população branca + razão de dependência | 0,731 | 0,708 |
-| **6 (final)** | **distância ao centro + % população branca + razão de dependência** | **0,716** | **0,702** |
+Todos os modelos abaixo usam a mesma variável dependente, `log(renda_pc)`,
+para serem comparáveis entre si por R² — nas primeiras rodadas exploratórias
+(documentadas em `analise_regressao_renda.md`) alguns desses mesmos modelos
+foram testados também com `renda_pc` bruta, o que dá números de R²
+diferentes (não comparáveis) para a mesma especificação; os valores abaixo
+foram recalculados de forma consistente especificamente para esta tabela.
+
+| Modelo | Regressores | R² | R² ajustado | AIC |
+|---|---|---|---|---|
+| 1 | escolaridade + log(densidade) + log(área) | 0,084 | 0,039 | 39,6 |
+| 2 | + densidade comercial (OSM) | 0,431 | 0,393 | 10,6 |
+| 3 | + distância ao centro | 0,519 | 0,479 | 1,7 |
+| 4 | apenas log(densidade) + log(densidade comercial) + distância ao centro (tira escolaridade e log(área), não significativas) | 0,502 | 0,477 | 0,0 |
+| 5 | + % população branca + razão de dependência | 0,730 | 0,707 | −35,7 |
+| **6 (final)** | **distância ao centro + % população branca + razão de dependência** (tira log(densidade) e log(densidade comercial), não significativas em 5) | **0,716** | **0,702** | **−36,6** |
+
+O modelo 6 tem R² marginalmente menor que o modelo 5 (0,716 vs. 0,730) — a
+escolha do modelo 6 como final não é sobre maximizar R², e sim sobre
+parcimônia: com duas variáveis a menos, o AIC melhora (menor é melhor:
+−36,6 vs. −35,7) e nenhuma variável remanescente perde significância. Ver
+Seção 5.2 para a leitura completa desse trade-off.
 
 O detalhamento completo de cada modelo (coeficientes, erros-padrão,
-p-valores, diagnósticos de resíduos) está em `analise_regressao_renda.md`.
+p-valores, diagnósticos de resíduos) está em `analise_regressao_renda.md` —
+nota-se que os números lá batem com os daqui apenas para os modelos que já
+usavam `log(renda_pc)` desde o início (a partir da "Extensão 2"); os
+primeiros dois modelos foram recalculados aqui com DV consistente.
 
 ### 5.2 Modelo final
 
@@ -139,19 +157,45 @@ sobre a matriz de regressores crua, incluindo a constante — o que infla o
 número por diferença de escala entre as variáveis, não por colinearidade
 real. Recalculado corretamente (variáveis padronizadas, sem constante), o
 condition index deste modelo é 1,8 — bem abaixo de 30 —, consistente com os
-VIFs. Ainda assim, o valor bruto do `statsmodels` é útil para comparação
-*relativa* entre modelos: caiu de ~24.700 (Modelo 1, com `log(área)`) para
-957 (modelo final), confirmando que remover `log(área)` reduziu a
-colinearidade introduzida por ela.
+VIFs. O valor bruto do `statsmodels` também é útil para comparação
+*relativa* entre modelos, com uma ressalva: do Modelo 3 (Cond. No. ≈ 24.800,
+com `escolaridade` e `log(área)`) para o Modelo 4 (Cond. No. ≈ 105, sem
+essas duas variáveis) há uma comparação isolada válida — só essas duas
+variáveis saíram —, e a queda de ~236× confirma que `log(área)` era a
+principal fonte de colinearidade bruta. Já a comparação direta entre o
+Modelo 1 e o modelo final não isola uma única causa: entre um e outro,
+cinco variáveis mudaram (saíram `escolaridade` e `log(área)`; entraram
+densidade comercial, distância ao centro, `pct_branca` e
+`razao_dependencia`, sendo as duas últimas removidas de volta no passo
+final) — o Cond. No. inclusive **sobe** de 105 (Modelo 4) para 2.328
+(Modelo 5) ao entrar `pct_branca`/`razao_dependencia`, antes de cair para
+957 no modelo final. Atribuir a queda de ~24.700 para 957 a uma única
+variável seria uma simplificação indevida da cadeia de mudanças.
 
 ### 5.3 Achado central
 
-`pct_branca` é, isoladamente, a variável de maior poder explicativo do
-modelo — mais forte que forma urbana (densidade, distância ao centro) e mais
-forte que escolaridade (que, em Caxias do Sul, tem variância quase nula:
-96–100% de alfabetização em todos os bairros, um efeito-teto que a torna
-estatisticamente inútil como discriminador de renda, apesar de ser dado real
-e correto).
+Os coeficientes da Seção 5.2 não são diretamente comparáveis em magnitude
+entre si — estão em unidades diferentes (`dist_centro_km` em quilômetros,
+`pct_branca` em pontos percentuais, `razao_dependencia` em outra escala de
+pontos percentuais). Para comparar a força relativa de cada preditor de
+forma válida, recalculou-se o modelo final com todas as variáveis
+padronizadas (z-score), obtendo coeficientes beta:
+
+| Variável | Beta padronizado | p-valor |
+|---|---|---|
+| `pct_branca` | 0,795 | < 0,001 |
+| `dist_centro_km` | −0,274 | < 0,001 |
+| `razao_dependencia` | −0,151 | 0,060 |
+
+`pct_branca` é, de fato, o preditor dominante do modelo por uma margem
+considerável — quase três vezes o peso padronizado de `dist_centro_km` — não
+apenas o mais significativo. `escolaridade` não é comparável aqui porque não
+faz parte do modelo final: foi descartada ainda no Modelo 4 (Seção 5.1) por
+não ser significativa em nenhuma especificação testada, um efeito plausível
+de teto estatístico (em Caxias do Sul a alfabetização de 15+ anos varia
+apenas entre 96% e 100% conforme o bairro), mas essa é uma leitura
+qualitativa da ausência de variância, não uma comparação de coeficientes
+dentro do mesmo modelo.
 
 ## 6. Discussão e limitações
 
