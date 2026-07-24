@@ -127,10 +127,22 @@ log(renda_pc) = 6,446 − 0,033 · dist_centro_km + 0,028 · pct_branca − 0,00
 | `razao_dependencia` | −0,005 | 0,003 | 0,060 |
 
 N = 65 bairros. R² = 0,716; R² ajustado = 0,702. Resíduos aproximadamente
-normais (Jarque-Bera p = 0,32); sem evidência de multicolinearidade
-problemática (número de condição = 957, abaixo do limiar de alerta usual de
-30 apontado por alguns autores para versões padronizadas, e consideravelmente
-menor que nos modelos anteriores que incluíam `log(área)`).
+normais (Jarque-Bera p = 0,32). Sem evidência de multicolinearidade
+problemática: o Fator de Inflação da Variância (VIF) de cada regressor é
+baixo — `dist_centro_km` = 1,11, `pct_branca` = 1,34, `razao_dependencia` =
+1,33 —, bem abaixo dos limiares usuais de preocupação (5 ou 10; Wooldridge,
+2015). O "Cond. No." reportado pelo `statsmodels` para este modelo (957) não
+deve ser comparado diretamente ao limiar clássico de 30 (Belsley, Kuh &
+Welsch, 1980): esse limiar vale para o *condition index* calculado sobre
+variáveis padronizadas e sem a constante, enquanto o `statsmodels` calcula
+sobre a matriz de regressores crua, incluindo a constante — o que infla o
+número por diferença de escala entre as variáveis, não por colinearidade
+real. Recalculado corretamente (variáveis padronizadas, sem constante), o
+condition index deste modelo é 1,8 — bem abaixo de 30 —, consistente com os
+VIFs. Ainda assim, o valor bruto do `statsmodels` é útil para comparação
+*relativa* entre modelos: caiu de ~24.700 (Modelo 1, com `log(área)`) para
+957 (modelo final), confirmando que remover `log(área)` reduziu a
+colinearidade introduzida por ela.
 
 ### 5.3 Achado central
 
@@ -235,6 +247,8 @@ ANSELIN, L.; REY, S. J. **Modern Spatial Econometrics in Practice: A Guide to Ge
 ARIAS, O.; YAMADA, G.; TEJERINA, L. Education, family background and racial earnings inequality in Brazil. **International Journal of Manpower**, v. 25, n. 3/4, p. 355–374, 2004.
 
 BATTY, M. **The New Science of Cities**. Cambridge, MA: MIT Press, 2013.
+
+BELSLEY, D. A.; KUH, E.; WELSCH, R. E. **Regression Diagnostics: Identifying Influential Data and Sources of Collinearity**. New York: Wiley, 1980.
 
 CROOKS, A.; MALLESON, N.; MANLEY, E.; HEPPENSTALL, A. **Agent-Based Modelling and Geographical Information Systems: A Practical Primer**. London: Sage, 2019.
 
