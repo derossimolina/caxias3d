@@ -43,6 +43,7 @@ analise_ml.py               # clustering (KMeans) do perfil socioeconômico + re
 analise_osm_economia.py     # densidade comercial por bairro via OpenStreetMap (Overpass API)
 analise_regressao_v2.py     # distância ao centro (derivada da geometria) + log(renda)
 analise_regressao_v3.py     # composição racial + estrutura etária — modelo final
+analise_robustez.py         # testes de robustez (LOO-CV, univariado, correlação)
 ```
 
 Rodar nessa ordem, depois de `pipeline_ibge.py`. Cada script escreve de
@@ -80,6 +81,7 @@ python3 analise_ml.py
 python3 analise_osm_economia.py
 python3 analise_regressao_v2.py
 python3 analise_regressao_v3.py
+python3 analise_robustez.py
 
 python3 -m http.server 8787   # depois abrir http://localhost:8787
 ```

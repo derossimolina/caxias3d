@@ -135,3 +135,14 @@ Todos os termos significativos a 95%. Leitura: bairros com maior densidade comer
 | razao_dependencia | -0.0050 | 0.0026 | 0.0601 |
 
 **Leitura**: bairros mais próximos do centro, com maior % de população branca e menor razão de dependência (mais adultos em idade ativa por dependente) têm renda per capita mais alta. O coeficiente de `pct_branca` é o mais robusto e o de maior magnitude relativa do modelo inteiro — consistente com a literatura de desigualdade racial urbana no Brasil (ver relatorio_projeto_doutorado.md). Isso é uma correlação, não uma afirmação causal: raça está altamente correlacionada, no Brasil, com histórico de acesso a herança, educação e ocupação — o coeficiente capta esse conjunto de mecanismos estruturais, não um efeito "da raça em si".
+
+---
+
+## Extensão 4: testes de robustez (respostas às perguntas popperianas)
+
+Ver `relatorio_projeto_doutorado.md`, Seção 6.1, para a discussão completa. Resumo dos números:
+
+- `pct_branca` sozinha (sem as outras duas variáveis): R² = 0.640 (modelo completo: 0,716) — o achado não depende da combinação específica de covariáveis escolhida na busca de especificação.
+- R² fora da amostra (Leave-One-Out, 65 reajustes): 0.669 (dentro da amostra: 0,716) — queda modesta, sem sinal de overfitting severo.
+- Coeficiente de `pct_branca` nos 65 reajustes do LOO: desvio-padrão = 0.0004 sobre uma média de 0.0282 — nenhum bairro isolado está "puxando" o resultado.
+- Correlação `pct_branca` × `dist_centro_km` = -0.282 — moderada, não os torna intercambiáveis (consistente com o VIF baixo).

@@ -309,6 +309,71 @@ históricos de valorização fundiária e mercado imobiliário que também
 determinam renda — nesse caso, a regressão captura um equilíbrio de longo
 prazo, não uma cadeia causal unidirecional.
 
+### 6.1 Respostas às perguntas popperianas
+
+Uma revisão epistemológica independente deste documento fechou com quatro
+perguntas endereçadas diretamente a este achado. Respondê-las exigiu rodar testes novos, não só qualificar o texto —
+os números estão em `analise_robustez.py` e na seção "Extensão 4" de
+`analise_regressao_renda.md`.
+
+**1. Dado que o modelo foi construído por busca de especificação
+(adicionar/remover variáveis por significância e AIC), `pct_branca` teria
+alguma chance de não ter emergido como achado central, ou qualquer variável
+testada acabaria lá?**
+Testável, e testado: `pct_branca` sozinha, sem `dist_centro_km` nem
+`razao_dependencia`, explica R² = 0,640 de um R² total de 0,716 no modelo
+completo — ou seja, o achado não depende da combinação específica de
+covariáveis que sobrou no fim da busca; ele é dominante mesmo como preditor
+único. Isso não prova que nenhuma variável testada "teria alguma chance" —
+não há como testar isso retroativamente sem pré-registro — mas mostra que,
+*neste* achado específico, o resultado não é um artefato frágil da ordem em
+que as variáveis entraram ou saíram do modelo.
+
+**2. Existe alguma especificação testada que enfraqueceria o achado sobre
+raça, e que não foi reportada (viés de confirmação por omissão)?**
+Não — nenhuma das especificações testadas e reportadas neste documento
+enfraquece `pct_branca`. Mas a pergunta certa não é só "o que já foi
+testado", é "o que ainda não foi tentado que poderia refutar". Três testes
+novos foram rodados especificamente para tentar isso: (a) validação cruzada
+Leave-One-Out — R² fora da amostra cai de 0,716 para 0,669, uma queda
+modesta, não um colapso; (b) estabilidade do coeficiente de `pct_branca` nos
+65 reajustes do LOO — desvio-padrão de 0,0004 sobre uma média de 0,0282,
+ou seja, nenhum bairro isolado sustenta o resultado sozinho; (c) correlação
+`pct_branca` × `dist_centro_km` = −0,282 — moderada, não os torna a mesma
+coisa medida duas vezes. Nenhum desses três testes enfraqueceu o achado.
+Isso é evidência a favor, mas não é uma tentativa exaustiva de refutação:
+não foram testadas interações (`pct_branca` × `dist_centro_km`), termos
+não-lineares, nem uma especificação com erros-padrão robustos a
+heterocedasticidade espacial — essas continuam como avenidas genuinamente
+abertas para enfraquecer o achado, não descartadas.
+
+**3. `razao_dependencia` (p=0,060) foi mantida por um critério definido
+antes de ver o resultado, ou depois?**
+Depois — e é importante dizer isso sem meias palavras. A Seção 4.2 descreve
+um procedimento exploratório (remover por significância, comparar por AIC),
+não um teste confirmatório com critérios de inclusão pré-registrados. A
+decisão de manter `razao_dependencia` foi tomada depois de ver que sua
+inclusão melhora o AIC (Seção 5.1) e depois de ver seu p-valor específico
+(0,060) — não antes. Isso é intrínseco a um estudo exploratório sobre um
+único conjunto de dados, e é exatamente o tipo de grau de liberdade do
+pesquisador que motiva a Seção 7, item 2: qualquer estudo confirmatório
+subsequente deveria pré-registrar o critério de inclusão de variáveis antes
+de olhar os dados.
+
+**4. Que resultado, na replicação temporal com o Censo 2010 (Seção 7, item
+5), contaria como evidência *contra* a robustez do achado, e não só como
+mais uma corroboração se o sinal se repetir?**
+Critério definido agora, antes de rodar essa replicação (o pré-registro que
+a pergunta 3 identificou como faltante, aplicado aqui): contaria como
+evidência contra (a) o beta padronizado de `pct_branca` cair abaixo de 0,3
+(menos da metade do valor atual, 0,795) mesmo mantendo significância, (b)
+`pct_branca` perder significância a 5% no modelo 2010, ou (c) o sinal do
+coeficiente inverter. Qualquer um desses três resultados seria reportado
+como enfraquecimento do achado, não reinterpretado para "salvá-lo" — a
+alternativa (mudar a explicação teórica post-hoc para acomodar um resultado
+que contraria a expectativa, sem base independente) seria imunização ad hoc
+e vai contra o espírito desta seção.
+
 ## 7. Agenda de pesquisa (linhas para doutorado / paper)
 
 1. **Segregação racial residencial e renda em cidades médias do interior do
@@ -417,6 +482,7 @@ analise_ml.py               # clustering (KMeans) + regressão inicial
 analise_osm_economia.py     # densidade comercial via OpenStreetMap/Overpass
 analise_regressao_v2.py     # distância ao centro + log(renda)
 analise_regressao_v3.py     # composição racial + estrutura etária, modelo final
+analise_robustez.py         # testes de robustez (LOO-CV, univariado, correlação)
 ```
 
 Saída estatística completa (todos os modelos, coeficientes e diagnósticos):
