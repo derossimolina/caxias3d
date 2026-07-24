@@ -122,10 +122,13 @@ socioeconômico distinto (renda e densidade médias):
 Dois pontos chamam atenção: o cluster `central_rico` (17 bairros) tem renda
 média quase o dobro do `urbano_popular` (27 bairros, o maior grupo), e
 `urbano_medio` e `central_medio` têm rendas parecidas (R$ 3.488 vs. R$
-3.572) apesar de densidades muito diferentes (6.573 vs. 543 hab/km²) — sinal
-de que densidade sozinha não separa bem esses dois grupos, consistente com
-o achado da regressão (Seção 5.2) de que `pct_branca` explica mais variação
-de renda do que forma urbana. O cluster de 1 bairro isolado
+3.572) apesar de densidades muito diferentes (6.573 vs. 543 hab/km²). Isso
+não é um teste formal — é uma leitura qualitativa de apenas 2 dos 5
+clusters, e a Seção 5.0 já declara que este clustering não alimenta a
+regressão — mas aponta na mesma direção do teste formal feito nas Seções
+5.1 (o salto de R² ao entrar `pct_branca`) e 5.3 (comparação de betas
+padronizados): densidade sozinha não separa bem grupos de renda parecida
+em Caxias do Sul. O cluster de 1 bairro isolado
 (`central_medio_alto_disperso`) reflete um caso atípico (baixíssima
 densidade, mas renda mediana) que provavelmente merece inspeção individual
 antes de qualquer uso desses clusters para gerar população sintética no
@@ -161,9 +164,16 @@ parcimônia: com duas variáveis a menos, o AIC melhora (menor é melhor:
 −36,6 vs. −35,7). Uma ressalva de precisão: `razao_dependencia` tem p=0,060
 no modelo final — não atinge o limiar convencional de 5% usado no resto
 deste documento, embora esteja próximo. Ela foi mantida porque sua inclusão
-melhora o AIC (−36,6 com ela vs. −34,8 sem ela) e tem justificativa teórica
-própria (Seção 5.2) — não porque atinja o limiar de 5% de significância.
-Ver Seção 5.2 para a leitura completa desse trade-off.
+melhora o AIC (−36,6 com ela vs. −34,8 sem ela) e porque tem um mecanismo
+teórico plausível independente do ajuste estatístico: razão de dependência
+mais alta significa mais dependentes (crianças e idosos) por adulto em
+idade ativa no bairro, o que tende a reduzir a renda disponível por pessoa
+no domicílio mesmo sem mudar a renda de quem trabalha — um efeito
+composicional/demográfico (Modigliani & Brumberg, 1954; Mincer, 1974), não
+um artefato do ajuste. Isso não substitui o fato de que a decisão de
+mantê-la foi tomada depois de ver o p-valor (ver Seção 6.1, resposta 3) —
+o mecanismo teórico é uma justificativa a priori para *testar* a variável,
+não para *mantê-la* apesar do resultado.
 
 O detalhamento completo de cada modelo (coeficientes, erros-padrão,
 p-valores, diagnósticos de resíduos) está em `analise_regressao_renda.md` —
@@ -356,9 +366,10 @@ decisão de manter `razao_dependencia` foi tomada depois de ver que sua
 inclusão melhora o AIC (Seção 5.1) e depois de ver seu p-valor específico
 (0,060) — não antes. Isso é intrínseco a um estudo exploratório sobre um
 único conjunto de dados, e é exatamente o tipo de grau de liberdade do
-pesquisador que motiva a Seção 7, item 2: qualquer estudo confirmatório
-subsequente deveria pré-registrar o critério de inclusão de variáveis antes
-de olhar os dados.
+pesquisador que motiva a Seção 7, item 5 (replicação temporal): qualquer
+estudo confirmatório subsequente deveria pré-registrar o critério de
+inclusão de variáveis antes de olhar os dados — a resposta 4, a seguir,
+aplica esse pré-registro na prática.
 
 **4. Que resultado, na replicação temporal com o Censo 2010 (Seção 7, item
 5), contaria como evidência *contra* a robustez do achado, e não só como
