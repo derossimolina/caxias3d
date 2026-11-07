@@ -7,25 +7,27 @@
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+ExtraCondensed:ital,wght@1,900&family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#17181C;--bg2:#222329;--bg3:#2A2B32;
-  --papel:#F2EEE6;--cinza:#9A958A;--borda:#2E2F36;
-  --vinho:#8E2F3C;--vinho-c:#B85462;
-  --acento:#4A90D9;
+  --roxo:#660e9c;--escuro:#470a6d;--clara:#e7d4f4;--nevoa:rgba(102,14,156,.06);
+  --vermelho:#d21f1f;--azul:#1f4eae;
+  --bg:#f7f4f8;--bg2:#fff;--bg3:#f3f0f4;
+  --papel:#470a6d;--cinza:#6b5878;--borda:rgba(102,14,156,.22);
+  --vinho:#660e9c;--vinho-c:#470a6d;
+  --acento:#660e9c;
+  color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);overflow:hidden;color:var(--papel)}
+html,body{height:100%;font-family:Inter,Arial,sans-serif;background:var(--bg);overflow:hidden;color:var(--papel)}
 
 #map{position:absolute;inset:0}
 
 /* ── Painel esquerdo ── */
 #painel{
   position:absolute;top:0;left:0;bottom:0;z-index:10;
-  width:290px;
-  background:color-mix(in srgb,var(--bg) 93%,transparent);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  width:312px;
+  background:var(--bg);
   border-right:1px solid var(--borda);
   display:flex;flex-direction:column;gap:0;
   overflow-y:auto;overflow-x:hidden;
@@ -33,8 +35,20 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .p-header{
   padding:18px 16px 12px;border-bottom:1px solid var(--borda);flex-shrink:0;
 }
-.p-header h1{font-family:'Fraunces',serif;font-weight:600;font-size:20px;line-height:1.2}
-.p-header p{margin-top:3px;font-size:11px;color:var(--cinza)}
+.p-header h1{
+  font-family:"Archivo ExtraCondensed","Arial Narrow",sans-serif;
+  font-weight:900;font-style:italic;font-size:1.85rem;line-height:.9;
+  letter-spacing:-.02em;text-transform:uppercase;color:var(--escuro);
+}
+.p-header h1::before{content:"";display:block;width:48px;height:6px;margin-bottom:8px;background:var(--roxo)}
+.kicker{
+  margin:0 0 8px;font-family:Sora,Inter,sans-serif;font-weight:600;
+  font-size:10px;letter-spacing:.08em;line-height:1.35;
+  text-transform:uppercase;color:var(--roxo);
+}
+.p-atalho{margin-top:8px;font-size:12px}
+.p-atalho a{color:var(--acento);text-decoration:none}
+.p-atalho a:hover{text-decoration:underline}
 
 /* busca */
 .busca-wrap{padding:10px 12px 6px;border-bottom:1px solid var(--borda);flex-shrink:0;position:relative}
@@ -62,6 +76,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .busca-item:hover,.busca-item.foco{background:var(--bg3)}
 .busca-item .r-nome{color:var(--papel);font-weight:500}
 .busca-item .r-ende{color:var(--cinza);font-size:10.5px}
+.busca-sec{padding:6px 12px 2px;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);list-style:none}
 
 /* temas */
 .temas-wrap{padding:10px 12px;border-bottom:1px solid var(--borda);flex-shrink:0}
@@ -74,7 +89,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   cursor:pointer;transition:all .15s;text-align:center;
 }
 .btn-tema:hover{border-color:var(--acento);color:var(--papel)}
-.btn-tema.ativo{background:var(--acento);border-color:var(--acento);color:#fff}
+.btn-tema.ativo{background:var(--roxo);border-color:var(--roxo);color:#fff}
 
 /* legenda */
 .legenda-wrap{padding:10px 12px;border-bottom:1px solid var(--borda);flex-shrink:0}
@@ -100,7 +115,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   transition:background .15s,border-color .15s;
 }
 .btn-v:hover{border-color:var(--vinho-c)}
-.btn-v.ativo{background:var(--vinho);border-color:var(--vinho)}
+.btn-v.ativo,.btn-turno.ativo{background:var(--escuro);border-color:var(--escuro);color:#fff}
 
 /* lista de bairros da região */
 .bairros-lista{
@@ -143,17 +158,82 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 /* ── Info box (direita) ── */
 #info-box{
   position:absolute;top:16px;right:16px;z-index:10;
-  width:240px;
-  background:color-mix(in srgb,var(--bg) 92%,transparent);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  border:1px solid var(--borda);border-radius:12px;
+  width:300px;max-height:calc(100vh - 32px);overflow:auto;
+  background:#fff;
+  border:1px solid var(--borda);border-radius:0;
   padding:14px 14px 12px;
-  box-shadow:0 6px 24px rgba(0,0,0,.4);
+  box-shadow:6px 6px 0 rgba(71,10,109,.18);
   transition:opacity .2s,transform .2s;
+}
+#info-box::before{content:"";display:block;width:40px;height:6px;margin-bottom:10px;background:var(--roxo)}
+#ib-fechar{
+  position:absolute;top:8px;right:10px;background:none;border:none;
+  color:var(--cinza);font-size:18px;cursor:pointer;line-height:1;
+}
+#ib-local{font-size:12.5px;line-height:1.4}
+#ib-local p{margin-top:7px}
+#ib-local b{display:block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--cinza);font-weight:600;margin-bottom:2px}
+.turnos{display:flex;gap:4px;margin-top:8px}
+.turnos[hidden]{display:none}
+.btn-turno{
+  font-size:11px;font-weight:500;color:var(--papel);
+  background:var(--bg2);border:1px solid var(--borda);border-radius:999px;
+  padding:4px 10px;cursor:pointer;
+}
+.btn-leitura{
+  display:block;width:calc(100% - 24px);margin:10px 12px 12px;
+  border:0;background:var(--roxo);color:#fff;font-weight:700;font-size:13px;
+  min-height:42px;cursor:pointer;box-shadow:4px 4px 0 var(--escuro);
+}
+.btn-leitura:hover{transform:translate(-1px,-1px);box-shadow:6px 6px 0 var(--escuro)}
+#leitura[hidden]{display:none !important}
+#leitura{
+  position:fixed;inset:0;z-index:80;overflow:auto;
+  background:rgba(71,10,109,.72);padding:24px 16px 48px;
+}
+.leitura-folha{max-width:72rem;margin:0 auto;background:var(--bg);padding:22px 20px 36px;position:relative}
+.leitura-folha h2{
+  margin:0;font-family:"Archivo ExtraCondensed","Arial Narrow",sans-serif;
+  font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-.02em;
+  font-size:clamp(2.2rem,5vw,3.4rem);line-height:.88;color:var(--escuro);
+}
+.leitura-folha h2::before{content:"";display:block;width:72px;height:8px;margin-bottom:10px;background:var(--roxo)}
+.leitura-fechar{
+  position:absolute;top:14px;right:14px;min-height:40px;padding:0 14px;
+  border:1px solid var(--borda);background:#fff;color:var(--escuro);
+  font-weight:700;cursor:pointer;
+}
+.leitura-numeros{display:grid;gap:12px;margin-top:18px}
+.leitura-grade{display:grid;gap:12px;margin-top:12px}
+.grafico{background:#fff;border:1px solid var(--borda);padding:14px 14px 16px}
+.grafico h3{
+  margin:0;font-family:Sora,Inter,sans-serif;font-weight:600;font-size:12px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--roxo);
+}
+.grafico p,.leitura-nota{margin:8px 0 0;font-size:14.5px;line-height:1.45;color:var(--escuro)}
+.grafico svg{width:100%;height:auto;display:block;margin-top:8px}
+#leitura .cartao{background:#fff;border:1px solid var(--borda);padding:14px 14px 12px;display:flex;flex-direction:column;gap:4px}
+#leitura .cartao::before{content:"";width:40px;height:6px;background:var(--roxo)}
+#leitura .cartao.azul::before{background:var(--azul)}
+#leitura .cartao.vermelho::before{background:var(--vermelho)}
+#leitura .rotulo{margin:0;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--roxo)}
+#leitura .grande{
+  margin:4px 0 0;font-family:"Archivo ExtraCondensed","Arial Narrow",sans-serif;
+  font-weight:900;font-style:italic;font-size:clamp(2.2rem,4vw,3rem);line-height:.92;letter-spacing:-.02em;
+}
+#leitura .miudo{margin:0;font-size:13.5px;line-height:1.4}
+.leitura-nota{max-width:46rem}
+@media(min-width:800px){
+  .leitura-numeros{grid-template-columns:repeat(3,1fr)}
+  .leitura-grade.duas{grid-template-columns:1fr 1fr}
 }
 #info-box[hidden]{display:none}
 #info-box.fade{opacity:0;transform:translateY(-4px)}
-.ib-nome{font-family:'Fraunces',serif;font-weight:600;font-size:16px;line-height:1.2;margin-bottom:10px}
+.ib-nome{
+  font-family:"Archivo ExtraCondensed","Arial Narrow",sans-serif;
+  font-weight:900;font-style:italic;text-transform:uppercase;
+  font-size:1.7rem;line-height:.9;letter-spacing:-.02em;margin-bottom:10px;
+}
 .ib-metricas{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
 .ib-metrica{
   background:var(--bg2);border:1px solid var(--borda);
@@ -170,10 +250,10 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 #coords{
   position:absolute;right:16px;bottom:24px;z-index:10;
   font-family:'IBM Plex Mono',monospace;font-size:10.5px;
-  color:var(--papel);
-  background:color-mix(in srgb,var(--bg) 85%,transparent);
-  backdrop-filter:blur(6px);border:1px solid var(--borda);
-  border-radius:6px;padding:4px 9px;
+  color:var(--escuro);
+  background:#fff;
+  border:1px solid var(--borda);
+  border-radius:0;padding:4px 9px;
 }
 
 /* ── MapLibre overrides ── */
@@ -194,15 +274,14 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 /* ── Modo de navegação ── */
 #btn-walk{
   position:absolute;bottom:52px;right:16px;z-index:10;
-  background:color-mix(in srgb,var(--bg) 90%,transparent);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  border:1px solid var(--borda);border-radius:8px;
+  background:#fff;
+  border:1px solid var(--borda);border-radius:0;
   color:var(--papel);font-size:11.5px;font-weight:500;
   padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;
   transition:all .15s;
 }
 #btn-walk:hover{border-color:var(--acento);color:var(--acento)}
-#btn-walk.ativo{background:var(--acento);border-color:var(--acento);color:#fff}
+#btn-walk.ativo{background:var(--roxo);border-color:var(--roxo);color:#fff}
 
 #crosshair{
   position:absolute;top:50%;left:50%;z-index:9;
@@ -227,8 +306,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 
 #walk-hint{
   position:absolute;bottom:88px;right:16px;z-index:10;
-  background:color-mix(in srgb,var(--bg) 90%,transparent);
-  backdrop-filter:blur(8px);border:1px solid var(--borda);border-radius:8px;
+  background:#fff;border:1px solid var(--borda);border-radius:0;
   padding:10px 13px;font-size:11px;color:var(--cinza);
   line-height:1.7;display:none;
 }
@@ -245,6 +323,15 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 </head>
 <body>
 
+<div id="leitura" hidden>
+  <div class="leitura-folha" role="dialog" aria-modal="true" aria-labelledby="leitura-titulo">
+    <button type="button" class="leitura-fechar" id="leitura-fechar">Fechar</button>
+    <p class="kicker">Cada ponto é um bairro</p>
+    <h2 id="leitura-titulo">Renda e o voto</h2>
+    <div id="leitura-corpo"></div>
+  </div>
+</div>
+
 <div id="spinner">
   <div class="spin"></div>
   <span>Carregando dados da cidade…</span>
@@ -255,8 +342,8 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 <!-- Painel esquerdo -->
 <aside id="painel">
   <div class="p-header">
+    <p class="kicker">Censo 2022 · eleições 2024 e 2026</p>
     <h1>Caxias do Sul</h1>
-    <p>Dados socioeconômicos por bairro · Censo IBGE 2022</p>
   </div>
 
   <!-- Busca de endereço -->
@@ -278,6 +365,12 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
       <button class="btn-tema" data-tema="densidade">Densidade</button>
       <button class="btn-tema" data-tema="escolaridade">Escolaridade</button>
       <button class="btn-tema" data-tema="emprego_formal">Emprego formal</button>
+      <button class="btn-tema" data-tema="pres_2026">Presidente 2026</button>
+      <button class="btn-tema" data-tema="pref_2024">Prefeito 2024</button>
+    </div>
+    <div class="turnos" id="turnos" hidden>
+      <button type="button" class="btn-turno ativo" data-turno="2">2º turno</button>
+      <button type="button" class="btn-turno" data-turno="1">1º turno</button>
     </div>
   </div>
 
@@ -289,6 +382,8 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
     <div class="leg-labels" id="leg-labels"></div>
     <div class="leg-classes" id="leg-classes"></div>
   </div>
+
+  <button type="button" class="btn-leitura" id="abrir-leitura">Renda e o voto</button>
 
   <!-- Presets de navegação -->
   <div class="nav-wrap">
@@ -314,8 +409,12 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   <div class="painel-footer">
     <button class="btn-fontes" id="btn-fontes">ℹ Fontes de dados</button>
     <div class="fontes-detalhe" id="fontes-detalhe">
-      Limites e indicadores: IBGE Censo 2022 (malha oficial de bairros)<br>
-      Emprego formal: IBGE/CEMPRE — estimativa distribuída por população<br>
+      Limites e indicadores: IBGE Censo 2022 (malha de 65 bairros)<br>
+      Renda: rendimento médio mensal do responsável pelo domicílio (V06004)<br>
+      Escolaridade: percentual de pessoas alfabetizadas de 15 anos ou mais<br>
+      Emprego formal: total municipal do CEMPRE repartido pela população<br>
+      Eleições: TSE, votação por seção, prefeito 2024 e presidente e Câmara 2026<br>
+      Renda e voto: regressão linear múltipla entre bairros, ponderada pelos votos válidos<br>
       Satélite: © Esri, DigitalGlobe<br>
       <a href="https://nominatim.openstreetmap.org" target="_blank" rel="noopener">Busca: Nominatim/OSM</a>
     </div>
@@ -327,10 +426,11 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 
 <!-- Info box do bairro -->
 <div id="info-box" hidden>
+  <button id="ib-fechar" type="button" hidden aria-label="Fechar">×</button>
   <div class="ib-nome" id="ib-nome">—</div>
-  <div class="ib-metricas">
+  <div class="ib-metricas" id="ib-padrao">
     <div class="ib-metrica" id="ib-renda">
-      <div class="ib-m-label">Renda</div>
+      <div class="ib-m-label">Renda do responsável</div>
       <div class="ib-m-val" id="ib-renda-v">—</div>
       <div class="ib-m-unit">R$/mês</div>
     </div>
@@ -340,16 +440,17 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
       <div class="ib-m-unit">hab/km²</div>
     </div>
     <div class="ib-metrica" id="ib-escol">
-      <div class="ib-m-label">Escolaridade</div>
+      <div class="ib-m-label">Alfabetização</div>
       <div class="ib-m-val" id="ib-escol-v">—</div>
-      <div class="ib-m-unit">% alfabetizados</div>
+      <div class="ib-m-unit">% de pessoas de 15+</div>
     </div>
     <div class="ib-metrica" id="ib-emp">
       <div class="ib-m-label">Emprego formal</div>
       <div class="ib-m-val" id="ib-emp-v">—</div>
-      <div class="ib-m-unit">pessoas</div>
+      <div class="ib-m-unit">estimativa pela população</div>
     </div>
   </div>
+  <div id="ib-local" hidden></div>
   <div class="ib-footer" id="ib-footer"></div>
 </div>
 
@@ -382,11 +483,36 @@ const VISTAS = [
 ];
 
 const TEMAS = {
-  renda_pc:      {label:'Renda per capita',unit:'R$/mês',      fmt:v=>`R$ ${v.toLocaleString('pt-BR')}`},
+  renda_pc:      {label:'Renda do responsável',unit:'R$/mês',      fmt:v=>`R$ ${v.toLocaleString('pt-BR')}`},
   densidade:     {label:'Densidade demogr.',unit:'hab/km²',    fmt:v=>v.toLocaleString('pt-BR')},
-  escolaridade:  {label:'Escolaridade média',unit:'%',         fmt:v=>`${v.toFixed(1)}%`},
-  emprego_formal:{label:'Emprego formal',unit:'pessoas',       fmt:v=>v.toLocaleString('pt-BR')},
+  escolaridade:  {label:'Alfabetização (15+)',unit:'%',        fmt:v=>`${v.toFixed(1)}%`},
+  emprego_formal:{label:'Emprego formal (estimativa)',unit:'pessoas', fmt:v=>v.toLocaleString('pt-BR')},
+  pres_2026:     {label:'Presidente 2026',unit:'%', fmt:v=>`${v.toFixed(1).replace('.',',')}%`},
+  pref_2024:     {label:'Prefeito 2024',unit:'%', fmt:v=>`${v.toFixed(1).replace('.',',')}%`},
 };
+
+const ELEICAO_TEMA = new Set(['pres_2026','pref_2024']);
+const FAIXA_FLAVIO = [
+  {max:50, cor:'#d21f1f', rotulo:'Lula à frente'},
+  {max:60, cor:'#d5def2', rotulo:'Flávio, de 50% a 60%'},
+  {max:70, cor:'#8eaddf', rotulo:'Flávio, de 60% a 70%'},
+  {max:80, cor:'#3d6ebf', rotulo:'Flávio, de 70% a 80%'},
+  {max:Infinity, cor:'#1f4eae', rotulo:'Flávio acima de 80%'},
+];
+const FAIXA_SCALCO = [
+  {max:46, cor:'#064E3B', rotulo:'Adiló acima de 54%'},
+  {max:48, cor:'#0F6E56', rotulo:'Adiló, de 52% a 54%'},
+  {max:50, cor:'#8FBFB0', rotulo:'Adiló, de 50% a 52%'},
+  {max:52, cor:'#9BB0D0', rotulo:'Scalco, de 50% a 52%'},
+  {max:55, cor:'#4A6FA8', rotulo:'Scalco, de 52% a 55%'},
+  {max:Infinity, cor:'#1B4F9C', rotulo:'Scalco acima de 55%'},
+];
+const PARTIDO_T1 = [
+  {cod:22, sigla:'PL', cor:'#1f4eae'},
+  {cod:45, sigla:'PSDB', cor:'#0F6E56'},
+  {cod:13, sigla:'PT', cor:'#d21f1f'},
+  {cod:15, sigla:'MDB', cor:'#C4920A'},
+];
 
 // ColorBrewer 6-class sequenciais
 const CORES = {
@@ -399,16 +525,347 @@ const CORES = {
 // ── Estado ──
 let mapa = null;
 let dadosBairros = {};
+let eleicao = null;
 let temaAtual = 'renda_pc';
+let turnoEleicao = 2;
 let hoverId = null;
+let localFixo = false;
+let porId = new Map();
+
+function semAcento(s) {
+  return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fmtPct(v) {
+  return v == null ? '—' : Number(v).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:2}) + '%';
+}
+function reais(v) {
+  return v == null ? 'sem dado de bairro' : Number(v).toLocaleString('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+}
+function haversine(lon1, lat1, lon2, lat2) {
+  const R = 6371000, r = Math.PI / 180;
+  const dLat = (lat2 - lat1) * r, dLon = (lon2 - lon1) * r;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+function distTexto(m) {
+  if (m < 1000) return Math.round(m) + ' m';
+  return (m / 1000).toLocaleString('pt-BR', {maximumFractionDigits:1}) + ' km';
+}
+function fraseVitoria(bloco, cargo) {
+  if (!bloco) return 'Sem apuração neste turno.';
+  const verbo = bloco.pct >= 50 ? 'venceu com' : 'foi o mais votado, com';
+  return `${bloco.vencedor} (${bloco.partido}) ${verbo} ${fmtPct(bloco.pct)} dos votos válidos para ${cargo}.`;
+}
+function corFaixa(valor, faixas) {
+  for (const f of faixas) if (valor < f.max) return f.cor;
+  return faixas[faixas.length - 1].cor;
+}
+function valorBairro(d) {
+  const b = d && d._ele;
+  if (!b) return null;
+  if (temaAtual === 'pres_2026') return turnoEleicao === 1 ? b.flavio_t1 : b.flavio_t2;
+  if (temaAtual === 'pref_2024') return turnoEleicao === 1 ? (b.partido_pref_t1 ? +b.partido_pref_t1 : null) : b.scalco_t2;
+  return d[temaAtual];
+}
+function ligarEleicao() {
+  const porNome = new Map((eleicao.bairros || []).map(b => [semAcento(b.nome), b]));
+  for (const d of Object.values(dadosBairros)) d._ele = porNome.get(semAcento(d.nome)) || null;
+  porId = new Map(eleicao.locais.map(l => [l.id, l]));
+}
+function partidoCirculo(l) {
+  if (temaAtual === 'pres_2026') {
+    const b = turnoEleicao === 1 ? l.t1 : l.t2;
+    return b ? b.partido : '';
+  }
+  const p = l.pref && l.pref['t' + turnoEleicao];
+  return p ? p.partido : '';
+}
+function geoLocais() {
+  return {
+    type:'FeatureCollection',
+    features: eleicao.locais.filter(l => l.lat != null && l.lon != null).map(l => ({
+      type:'Feature',
+      properties:{id:l.id, partido:partidoCirculo(l), nome:l.nome},
+      geometry:{type:'Point', coordinates:[l.lon, l.lat]},
+    })),
+  };
+}
+function atualizarCirculos() {
+  if (!mapa || !mapa.getSource('locais')) return;
+  const ligado = ELEICAO_TEMA.has(temaAtual);
+  mapa.setLayoutProperty('locais-circulo', 'visibility', ligado ? 'visible' : 'none');
+  if (ligado) mapa.getSource('locais').setData(geoLocais());
+}
+function localMaisProximo(lon, lat) {
+  let melhor = null, menor = Infinity;
+  for (const l of eleicao.locais) {
+    if (l.lat == null) continue;
+    const d = haversine(lon, lat, l.lon, l.lat);
+    if (d < menor) { menor = d; melhor = l; }
+  }
+  return {local:melhor, dist:menor};
+}
+function numPt(v, casas) {
+  return Number(v).toLocaleString('pt-BR', {minimumFractionDigits:casas, maximumFractionDigits:casas});
+}
+function sinalPt(v) {
+  const n = numPt(Math.abs(v), 2);
+  if (v > 0) return '+' + n;
+  if (v < 0) return '−' + n;
+  return n;
+}
+function pTexto(p) {
+  return p < 0.001 ? 'p < 0,001' : 'p = ' + p.toFixed(3).replace('.', ',');
+}
+function coefDe(modelo, inicio) {
+  return modelo.coeficientes.find(c => c.variavel.startsWith(inicio));
+}
+function pearson(a, b) {
+  const n = a.length;
+  let mx = 0, my = 0;
+  for (let i = 0; i < n; i++) { mx += a[i]; my += b[i]; }
+  mx /= n; my /= n;
+  let num = 0, dx = 0, dy = 0;
+  for (let i = 0; i < n; i++) {
+    const da = a[i] - mx, db = b[i] - my;
+    num += da * db; dx += da * da; dy += db * db;
+  }
+  return dx && dy ? num / Math.sqrt(dx * dy) : 0;
+}
+function corVinculo(r) {
+  const t = Math.max(-1, Math.min(1, r));
+  const neg = [184, 92, 58], zero = [244, 239, 232], pos = [102, 14, 156];
+  const de = t < 0 ? neg : zero;
+  const para = t < 0 ? zero : pos;
+  const u = t < 0 ? 1 + t : t;
+  const c = de.map((v, i) => Math.round(v + (para[i] - v) * u));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+const NOME_CURTO = {
+  'Renda do responsável (R$ mil)': 'Renda / R$ 1.000',
+  'Densidade (mil hab/km²)': 'Densidade',
+  'Distância ao centro (km)': 'Distância ao centro',
+};
+function dispersao(bairros, yChave, pesoChave, modelo, cor, tituloY) {
+  const W = 560, H = 340, m = {l:54, r:16, t:16, b:44};
+  const pts = bairros.filter(b => b.renda != null && b[yChave] != null && b[pesoChave] != null);
+  const xs = pts.map(b => b.renda), ys = pts.map(b => b[yChave]);
+  const pMax = Math.max(...pts.map(b => b[pesoChave]));
+  let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  x0 -= (x1 - x0) * 0.06; x1 += (x1 - x0) * 0.06;
+  y0 -= (y1 - y0) * 0.12; y1 += (y1 - y0) * 0.12;
+  const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
+  const Y = v => m.t + (1 - (v - y0) / (y1 - y0)) * (H - m.t - m.b);
+  const inter = modelo.coeficientes.find(c => c.variavel === 'Intercepto').beta;
+  const beta = coefDe(modelo, 'Renda').beta;
+  const xA = Math.min(...xs), xB = Math.max(...xs);
+  const yA = inter + beta * (xA / 1000), yB = inter + beta * (xB / 1000);
+  let guias = '';
+  for (let i = 0; i <= 4; i++) {
+    const v = y0 + (y1 - y0) * i / 4;
+    const y = Y(v);
+    guias += `<line x1="${m.l}" y1="${y.toFixed(1)}" x2="${W - m.r}" y2="${y.toFixed(1)}" stroke="rgba(102,14,156,.15)"/>`;
+    guias += `<text x="${m.l - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#470a6d">${numPt(v, 0)}%</text>`;
+  }
+  for (let i = 0; i <= 3; i++) {
+    const v = x0 + (x1 - x0) * i / 3;
+    const x = X(v);
+    guias += `<text x="${x.toFixed(1)}" y="${H - 16}" text-anchor="middle" font-size="11" fill="#470a6d">${(Math.round(v / 100) / 10).toLocaleString('pt-BR', {maximumFractionDigits:1})} mil</text>`;
+  }
+  const bolhas = pts.map(b => {
+    const raio = (4 + 8 * Math.sqrt(b[pesoChave] / pMax)).toFixed(1);
+    const rotulo = `${b.nome}. Renda ${reais(b.renda)}. ${tituloY} ${numPt(b[yChave], 1)}%.`;
+    return `<circle cx="${X(b.renda).toFixed(1)}" cy="${Y(b[yChave]).toFixed(1)}" r="${raio}" fill="${cor}" fill-opacity="0.78"><title>${escHtml(rotulo)}</title></circle>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${escHtml(tituloY)} por renda do bairro">
+    ${guias}
+    <line x1="${X(xA).toFixed(1)}" y1="${Y(yA).toFixed(1)}" x2="${X(xB).toFixed(1)}" y2="${Y(yB).toFixed(1)}" stroke="#470a6d" stroke-width="2.5"/>
+    ${bolhas}
+  </svg>`;
+}
+function floresta(modelo, x0, x1, titulo) {
+  const itens = modelo.coeficientes.filter(c => c.variavel !== 'Intercepto');
+  const W = 560, linha = 64, m = {l: 8, r: 108, t: 8, b: 22};
+  const plotL = 8, plotR = W - m.r;
+  const H = m.t + itens.length * linha + m.b;
+  const X = v => plotL + (v - x0) / (x1 - x0) * (plotR - plotL);
+  const zero = X(0);
+  let corpo = `<line x1="${zero.toFixed(1)}" y1="4" x2="${zero.toFixed(1)}" y2="${H - m.b}" stroke="#470a6d" stroke-width="1.25"/>`;
+  corpo += `<text x="${zero.toFixed(1)}" y="${H - 4}" text-anchor="middle" font-size="11" fill="#6b5878">zero</text>`;
+  itens.forEach((c, i) => {
+    const y = m.t + i * linha + 30;
+    const cruza = c.ic_inf < 0 && c.ic_sup > 0;
+    const cor = cruza ? '#8a7b96' : '#660e9c';
+    const nome = NOME_CURTO[c.variavel] || c.variavel;
+    corpo += `<text x="4" y="${y - 14}" font-size="13" fill="#470a6d">${escHtml(nome)}</text>`;
+    corpo += `<line x1="${X(c.ic_inf).toFixed(1)}" y1="${y}" x2="${X(c.ic_sup).toFixed(1)}" y2="${y}" stroke="${cor}" stroke-width="4" stroke-linecap="round"/>`;
+    corpo += `<rect x="${(X(c.beta) - 5).toFixed(1)}" y="${y - 5}" width="10" height="10" fill="${cor}"><title>${escHtml(sinalPt(c.beta))} pontos. Intervalo ${sinalPt(c.ic_inf)} a ${sinalPt(c.ic_sup)}. ${pTexto(c.p)}</title></rect>`;
+    corpo += `<text x="${W - 8}" y="${y - 2}" text-anchor="end" font-size="15" font-weight="700" fill="#470a6d">${sinalPt(c.beta)}</text>`;
+    corpo += `<text x="${W - 8}" y="${y + 14}" text-anchor="end" font-size="11" fill="#6b5878">${escHtml(pTexto(c.p))}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${escHtml(titulo)}">${corpo}</svg>`;
+}
+function mapaCorrelacao(bairros) {
+  const cols = [
+    ['Renda', b => b.renda],
+    ['Densidade', b => b.densidade],
+    ['Distância', b => b.dist_centro_km],
+    ['Flávio', b => b.flavio_t2],
+    ['Scalco', b => b.scalco_t2],
+    ['Salto do PL', b => b.delta_pl],
+  ];
+  const linhas = bairros.filter(b => cols.every(([, f]) => Number.isFinite(f(b))));
+  const series = cols.map(([, f]) => linhas.map(f));
+  const n = cols.length, cell = 78, lab = 96, topo = 22;
+  const W = lab + n * cell + 8, H = topo + n * cell + 8;
+  let corpo = '';
+  cols.forEach(([nome], i) => {
+    const x = lab + i * cell + cell / 2;
+    corpo += `<text x="${x}" y="14" text-anchor="middle" font-size="11" fill="#470a6d">${escHtml(nome)}</text>`;
+    corpo += `<text x="${lab - 8}" y="${(topo + i * cell + cell / 2 + 4)}" text-anchor="end" font-size="12" fill="#470a6d">${escHtml(nome)}</text>`;
+  });
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const r = pearson(series[i], series[j]);
+      const x = lab + j * cell, y = topo + i * cell;
+      const tinta = Math.abs(r) > 0.55 ? '#fff' : '#470a6d';
+      corpo += `<rect x="${x + 3}" y="${y + 3}" width="${cell - 6}" height="${cell - 6}" fill="${corVinculo(r)}"><title>${escHtml(cols[i][0])} e ${escHtml(cols[j][0])}: ${numPt(r, 2)}</title></rect>`;
+      corpo += `<text x="${x + cell / 2}" y="${y + cell / 2 + 4}" text-anchor="middle" font-size="13" font-weight="700" fill="${tinta}">${numPt(r, 2)}</text>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mapa de correlação entre renda, densidade, distância e voto">${corpo}</svg>`;
+}
+function barrasLocais(c) {
+  const itens = [
+    [c.psdb_e_pl, 'PSDB em 2024 e PL em 2026', '#1f4eae'],
+    [c.pl_e_pl, 'PL nas duas eleições', '#660e9c'],
+    [c.psdb_e_pt, 'PSDB em 2024 e PT em 2026', '#d21f1f'],
+  ];
+  const max = Math.max(...itens.map(i => i[0]));
+  const W = 560, H = 140, barX = 248, barMax = 230;
+  const barras = itens.map((item, i) => {
+    const y = 16 + i * 42;
+    const largura = Math.max(8, item[0] / max * barMax);
+    return `<text x="0" y="${y + 16}" font-size="13" fill="#470a6d">${escHtml(item[1])}</text>
+      <rect x="${barX}" y="${y}" width="${largura.toFixed(1)}" height="22" fill="${item[2]}"></rect>
+      <text x="${barX + barMax + 12}" y="${y + 16}" font-size="15" font-weight="700" fill="#470a6d">${item[0]}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Locais por partido em 2024 e 2026">${barras}</svg>`;
+}
+function mostrarRegressao() {
+  const r = eleicao.regressao;
+  const c = eleicao.prefeito_2024.comparacao_locais;
+  const bairros = eleicao.bairros || [];
+  const rendaF = coefDe(r.flavio_2026, 'Renda');
+  const rendaS = coefDe(r.scalco_2024, 'Renda');
+  const rendaD = coefDe(r.delta_pl, 'Renda');
+  const rendaFb = coefDe(r.flavio_2026_bivariada, 'Renda');
+  const rendaSb = coefDe(r.scalco_2024_bivariada, 'Renda');
+  const limites = [rendaF, rendaS, rendaD].flatMap(x => [x.ic_inf, x.ic_sup]);
+  r.flavio_2026.coeficientes.concat(r.scalco_2024.coeficientes, r.delta_pl.coeficientes)
+    .filter(x => x.variavel !== 'Intercepto')
+    .forEach(x => limites.push(x.ic_inf, x.ic_sup));
+  let x0 = Math.min(0, ...limites) - 0.4;
+  let x1 = Math.max(0, ...limites) + 0.4;
+  const cartao = (classe, rotulo, valor, nota) =>
+    `<article class="cartao ${classe}"><p class="rotulo">${rotulo}</p><p class="grande num">${valor}</p><p class="miudo">${nota}</p></article>`;
+  document.getElementById('leitura-corpo').innerHTML =
+    `<div class="leitura-numeros">
+      ${cartao('azul', 'Flávio em 2026', sinalPt(rendaF.beta), `pontos a mais na fatia dele a cada R$ 1.000 de renda, com densidade e distância na conta. ${pTexto(rendaF.p)}.`)}
+      ${cartao('azul', 'Scalco em 2024', sinalPt(rendaS.beta), `ponto a mais na fatia dele a cada R$ 1.000, só quando densidade e distância entram juntas. ${pTexto(rendaS.p)}.`)}
+      ${cartao('', 'Salto do PL', sinalPt(rendaD.beta), `pontos a mais na diferença entre Flávio e Scalco a cada R$ 1.000. ${pTexto(rendaD.p)}.`)}
+    </div>
+    <div class="leitura-grade duas">
+      <section class="grafico">
+        <h3>Flávio e a renda</h3>
+        ${dispersao(bairros, 'flavio_t2', 'validos_2026', r.flavio_2026_bivariada, '#1f4eae', 'Flávio')}
+        <p>Cada bolha é um bairro. Mais à direita, maior a renda do responsável em 2022. Mais acima, maior a fatia de Flávio no 2º turno de 2026. A reta usa só a renda e sobe ${sinalPt(rendaFb.beta)} pontos a cada R$ 1.000. Bolhas maiores tiveram mais votos válidos. Ela acompanha ${Math.round(r.flavio_2026_bivariada.r2 * 100)}% da diferença de fatia entre os bairros.</p>
+      </section>
+      <section class="grafico">
+        <h3>Scalco e a renda</h3>
+        ${dispersao(bairros, 'scalco_t2', 'validos_2024', r.scalco_2024_bivariada, '#1f4eae', 'Scalco')}
+        <p>A mesma renda, agora com a fatia de Scalco para prefeito em 2024. A reta muda ${sinalPt(rendaSb.beta)} ponto a cada R$ 1.000 e fica quase deitada. Sozinha, a renda acompanha menos de 1% dessa fatia. O efeito pequeno do cartão aparece quando densidade e distância entram na conta.</p>
+      </section>
+    </div>
+    <div class="leitura-grade">
+      <section class="grafico">
+        <h3>O que muda quando as outras medidas ficam paradas</h3>
+        <div class="leitura-grade">
+          <div><h3>Flávio, 2026</h3>${floresta(r.flavio_2026, x0, x1, 'Coeficientes de Flávio em 2026')}</div>
+          <div><h3>Scalco, 2024</h3>${floresta(r.scalco_2024, x0, x1, 'Coeficientes de Scalco em 2024')}</div>
+          <div><h3>Salto do PL, 2026 menos 2024</h3>${floresta(r.delta_pl, x0, x1, 'Coeficientes do salto do PL')}</div>
+        </div>
+        <p>O quadrado é a estimativa, em pontos percentuais. O traço é o intervalo de 95%. Se o traço cruza a linha do zero, a conta não separa esse efeito do acaso. Renda, densidade e distância entram juntas. A alfabetização ficou de fora porque quase não varia.</p>
+      </section>
+      <section class="grafico">
+        <h3>Mapa de correlação</h3>
+        ${mapaCorrelacao(bairros)}
+        <p>A cor diz se duas medidas andam juntas nos ${bairros.length} bairros. Roxo forte: sobem juntas. Terracota: uma sobe quando a outra desce. Bege: quase nenhum vínculo. O 1,00 na diagonal é a medida com ela mesma. Aqui cada bairro conta uma vez. A regressão dá mais peso aos bairros com mais votos.</p>
+      </section>
+      <section class="grafico">
+        <h3>De 2024 para 2026, local a local</h3>
+        ${barrasLocais(c)}
+        <p>Dos locais com os dois pleitos, ${c.psdb_e_pl} tiveram Adiló (PSDB) na frente em 2024 e Flávio (PL) em 2026. ${c.pl_e_pl} ficaram com o PL nas duas. ${c.psdb_e_pt} passaram do PSDB ao PT. ${c.sem_par} locais de 2026 ficaram sem par em 2024.</p>
+      </section>
+    </div>
+    <p class="leitura-nota">${escHtml(r.leitura)}</p>`;
+  const folha = document.getElementById('leitura');
+  const abrir = () => { folha.hidden = false; document.getElementById('leitura-fechar').focus(); };
+  const fechar = () => { folha.hidden = true; };
+  document.getElementById('abrir-leitura').addEventListener('click', abrir);
+  document.getElementById('leitura-fechar').addEventListener('click', fechar);
+  folha.addEventListener('click', e => { if (e.target === folha) fechar(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !folha.hidden) fechar(); });
+  if (location.hash === '#leitura') abrir();
+}
+function abrirLocal(id, endereco) {
+  const l = porId.get(id);
+  if (!l) return;
+  localFixo = true;
+  const box = document.getElementById('info-box');
+  box.hidden = false;
+  box.classList.remove('fade');
+  document.getElementById('ib-padrao').hidden = true;
+  document.getElementById('ib-local').hidden = false;
+  document.getElementById('ib-fechar').hidden = false;
+  document.getElementById('ib-nome').textContent = l.nome;
+  const pref = l.pref || {};
+  const dep = l.deputado;
+  const depTxt = dep
+    ? `O ${dep.nome === dep.sigla ? dep.sigla : dep.nome + ' (' + dep.sigla + ')'} foi o partido mais votado para a Câmara, com ${fmtPct(dep.pct)}.`
+    : 'Sem votos de deputado federal neste local.';
+  let compara = 'Este local não tem os dois pleitos no cadastro usado aqui.';
+  if (pref.t2 && l.t2) {
+    compara = `Em 2024, ${pref.t2.vencedor} (${pref.t2.partido}) venceu o 2º turno para prefeito com ${fmtPct(pref.t2.pct)}. Em 2026, ${l.t2.vencedor} (${l.t2.partido}) venceu o 2º turno para presidente com ${fmtPct(l.t2.pct)}. A fatia do PL foi de ${fmtPct(pref.t2.scalco_pct)} com Scalco para ${fmtPct(l.t2.flavio_pct)} com Flávio.`;
+  }
+  const onde = endereco ? `Local mais próximo, a ${distTexto(endereco.dist)}.` : 'Local de votação.';
+  document.getElementById('ib-local').innerHTML =
+    `<p>${escHtml(onde)} ${escHtml(l.endereco || '')} · ${escHtml(l.bairro || l.bairro_ibge || '')} · zona ${l.zona}, local ${l.local}.</p>
+     <p><b>Presidente · 2º turno de 2026</b>${escHtml(fraseVitoria(l.t2, 'presidente'))}</p>
+     <p><b>Presidente · 1º turno de 2026</b>${escHtml(fraseVitoria(l.t1, 'presidente'))}</p>
+     <p><b>Câmara dos Deputados · 2026</b>${escHtml(depTxt)}</p>
+     <p><b>Prefeito · 2º turno de 2024</b>${escHtml(fraseVitoria(pref.t2, 'prefeito'))}</p>
+     <p><b>Prefeito · 1º turno de 2024</b>${escHtml(fraseVitoria(pref.t1, 'prefeito'))}</p>
+     <p><b>Comparação</b>${escHtml(compara)}</p>
+     <p><b>Renda do responsável</b>${l.renda != null ? escHtml(reais(l.renda) + ' por mês, Censo 2022.') : 'Este local fica fora da malha de bairros.'}</p>`;
+  document.getElementById('ib-footer').textContent =
+    `${(l.eleitores || 0).toLocaleString('pt-BR')} eleitores · ${l.secoes || 0} seções`;
+}
 
 // ── Inicialização ──
 async function init() {
-  const [geojson, dados] = await Promise.all([
+  const [geojson, dados, ele] = await Promise.all([
     fetch('Limites_dos_Bairros.geojson').then(r=>r.json()),
     fetch('dados_bairros.json').then(r=>r.json()),
+    fetch('dados_eleicao.json').then(r=>r.json()),
   ]);
   dadosBairros = dados;
+  eleicao = ele;
+  ligarEleicao();
+  mostrarRegressao();
 
   document.getElementById('spinner').hidden = true;
 
@@ -466,6 +923,26 @@ async function init() {
       },
     });
 
+    mapa.addSource('locais', {type:'geojson', data: geoLocais()});
+    mapa.addLayer({
+      id:'locais-circulo', type:'circle', source:'locais',
+      layout:{visibility:'none'},
+      paint:{
+        'circle-radius': ['interpolate',['linear'],['zoom'], 11, 3.5, 15, 8],
+        'circle-color': ['match', ['get','partido'],
+          'PL','#1f4eae', 'PT','#d21f1f', 'PSDB','#0F6E56', 'MDB','#C4920A', 'PDT','#E07A3D', '#8A8D96'],
+        'circle-stroke-width': 1.2,
+        'circle-stroke-color': '#ffffff',
+        'circle-opacity': 0.95,
+      },
+    });
+    mapa.on('click', 'locais-circulo', e => {
+      const id = e.features && e.features[0] && e.features[0].properties.id;
+      if (id) abrirLocal(id, null);
+    });
+    mapa.on('mouseenter', 'locais-circulo', () => { mapa.getCanvas().style.cursor = 'pointer'; });
+    mapa.on('mouseleave', 'locais-circulo', () => { mapa.getCanvas().style.cursor = ''; });
+
     atualizarLegenda();
     setupHover();
   });
@@ -496,14 +973,32 @@ function buildStyle() {
       },
     },
     layers: [
-      {id:'background', type:'background', paint:{'background-color':'#17181C'}},
+      {id:'background', type:'background', paint:{'background-color':'#f3f0f4'}},
       {id:'satellite', type:'raster', source:'satellite'},
     ],
   };
 }
 
 // ── Choropleth: expressão de cor por codigobairro ──
+function buildColorEleicao() {
+  const expr = ['match', ['to-number', ['get','codigobairro']]];
+  for (const [cod, d] of Object.entries(dadosBairros)) {
+    const v = valorBairro(d);
+    let cor = '#3A3B44';
+    if (v != null && temaAtual === 'pres_2026') cor = corFaixa(v, FAIXA_FLAVIO);
+    else if (v != null && temaAtual === 'pref_2024' && turnoEleicao === 2) cor = corFaixa(v, FAIXA_SCALCO);
+    else if (v != null && temaAtual === 'pref_2024') {
+      const achou = PARTIDO_T1.find(p => p.cod === v);
+      cor = achou ? achou.cor : '#6E727C';
+    }
+    expr.push(+cod, cor);
+  }
+  expr.push('#3A3B44');
+  return expr;
+}
+
 function buildColorExpr(tema) {
+  if (tema === 'pres_2026' || tema === 'pref_2024') return buildColorEleicao();
   const vals = Object.entries(dadosBairros).map(([cod,d]) => ({cod:+cod, v:d[tema]}));
   const sorted = vals.map(x=>x.v).filter(v=>v!=null).sort((a,b)=>a-b);
   const n = sorted.length;
@@ -521,7 +1016,36 @@ function buildColorExpr(tema) {
 }
 
 // ── Legenda ──
+function legendaEleicao() {
+  const titulo = document.getElementById('leg-titulo');
+  const escala = document.getElementById('leg-escala');
+  const labels = document.getElementById('leg-labels');
+  const classes = document.getElementById('leg-classes');
+  const ponto = '<div class="leg-classe"><span class="leg-cor" style="background:#fff;border:1px solid #888"></span>Ponto: local de votação</div>';
+  if (temaAtual === 'pref_2024' && turnoEleicao === 1) {
+    titulo.textContent = '1º turno de 2024 · partido mais votado para prefeito';
+    escala.innerHTML = '';
+    labels.innerHTML = '';
+    classes.innerHTML = PARTIDO_T1.map(p =>
+      `<div class="leg-classe"><span class="leg-cor" style="background:${p.cor}"></span>${p.sigla}</div>`
+    ).join('') + '<div class="leg-classe"><span class="leg-cor" style="background:#3A3B44"></span>Sem local neste bairro</div>' + ponto;
+    return;
+  }
+  const faixas = temaAtual === 'pres_2026' ? FAIXA_FLAVIO : FAIXA_SCALCO;
+  titulo.textContent = temaAtual === 'pres_2026'
+    ? (turnoEleicao === 2 ? '2º turno de 2026 · fatia de Flávio (PL)' : '1º turno de 2026 · fatia de Flávio (PL)')
+    : '2º turno de 2024 · fatia de Scalco (PL)';
+  labels.innerHTML = temaAtual === 'pres_2026'
+    ? '<span>Lula</span><span>Flávio</span>'
+    : '<span>Adiló (PSDB)</span><span>Scalco (PL)</span>';
+  escala.innerHTML = faixas.map(f => `<span style="background:${f.cor}"></span>`).join('');
+  classes.innerHTML = faixas.map(f =>
+    `<div class="leg-classe"><span class="leg-cor" style="background:${f.cor}"></span>${f.rotulo}</div>`
+  ).join('') + '<div class="leg-classe"><span class="leg-cor" style="background:#3A3B44"></span>Sem local neste bairro</div>' + ponto;
+}
+
 function atualizarLegenda() {
+  if (ELEICAO_TEMA.has(temaAtual)) { legendaEleicao(); return; }
   const meta = TEMAS[temaAtual];
   const vals = Object.values(dadosBairros).map(d=>d[temaAtual]).filter(v=>v!=null).sort((a,b)=>a-b);
   const n = vals.length;
@@ -583,6 +1107,10 @@ function setupHover() {
 }
 
 function mostrarInfo(props) {
+  if (localFixo) return;
+  document.getElementById('ib-padrao').hidden = false;
+  document.getElementById('ib-local').hidden = true;
+  document.getElementById('ib-fechar').hidden = true;
   const cod = String(props.codigobairro);
   const d = dadosBairros[cod];
   if (!d) return;
@@ -610,12 +1138,17 @@ function mostrarInfo(props) {
   const el = document.getElementById(`ib-${mapa_tema[temaAtual]}`);
   if (el) el.classList.add('destaque');
 
-  document.getElementById('ib-footer').textContent =
-    `Populacao: ${(d.populacao||0).toLocaleString('pt-BR')} hab · ` +
-    `Área: ${(d.area_km2||0).toFixed(2)} km²`;
+  let extra = `População: ${(d.populacao||0).toLocaleString('pt-BR')} hab · Área: ${(d.area_km2||0).toFixed(2)} km²`;
+  if (d._ele) {
+    const e = d._ele;
+    const pref = e.adilo_t2 >= e.scalco_t2 ? `Adiló ${fmtPct(e.adilo_t2)}` : `Scalco ${fmtPct(e.scalco_t2)}`;
+    extra += `. 2026, 2º turno: Flávio ${fmtPct(e.flavio_t2)}. 2024, 2º turno: ${pref}.`;
+  }
+  document.getElementById('ib-footer').textContent = extra;
 }
 
 function ocultarInfo() {
+  if (localFixo) return;
   const box = document.getElementById('info-box');
   box.classList.add('fade');
   setTimeout(() => { if (box.classList.contains('fade')) box.hidden=true; }, 200);
@@ -628,10 +1161,30 @@ function setupTemas() {
       document.querySelectorAll('.btn-tema').forEach(b=>b.classList.remove('ativo'));
       btn.classList.add('ativo');
       temaAtual = btn.dataset.tema;
+      document.getElementById('turnos').hidden = !ELEICAO_TEMA.has(temaAtual);
       if (mapa.getLayer('bairros-fill'))
         mapa.setPaintProperty('bairros-fill','fill-color', buildColorExpr(temaAtual));
+      atualizarCirculos();
       atualizarLegenda();
     });
+  });
+  document.querySelectorAll('.btn-turno').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      turnoEleicao = +btn.dataset.turno;
+      if (mapa && mapa.getLayer('bairros-fill'))
+        mapa.setPaintProperty('bairros-fill','fill-color', buildColorExpr(temaAtual));
+      atualizarCirculos();
+      atualizarLegenda();
+    });
+  });
+  document.getElementById('ib-fechar').addEventListener('click', () => {
+    localFixo = false;
+    document.getElementById('ib-local').hidden = true;
+    document.getElementById('ib-padrao').hidden = false;
+    document.getElementById('ib-fechar').hidden = true;
+    ocultarInfo();
   });
 }
 
@@ -729,40 +1282,80 @@ function setupBusca() {
     items[focoIdx]?.classList.add('foco');
   }
 
-  async function buscar(q) {
-    try {
-      const url = `https://nominatim.openstreetmap.org/search?` +
-        `q=${encodeURIComponent(q+', Caxias do Sul, RS')}&format=json&limit=6&addressdetails=1`;
-      const res = await fetch(url, {headers:{'Accept-Language':'pt-BR'}});
-      const data = await res.json();
-      renderResultados(data);
-    } catch {
-      lista.hidden = true;
-    }
+  function locaisDoTexto(q) {
+    const n = semAcento(q);
+    return eleicao.locais.filter(l =>
+      [l.nome, l.endereco, l.bairro, l.bairro_tse, l.bairro_ibge].some(c => semAcento(c).includes(n))
+    ).slice(0, 6);
   }
 
-  function renderResultados(data) {
+  async function buscar(q) {
+    const locais = locaisDoTexto(q);
+    let enderecos = [];
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?` +
+        `q=${encodeURIComponent(q+', Caxias do Sul, RS')}&format=json&limit=5&addressdetails=1`;
+      const res = await fetch(url, {headers:{'Accept-Language':'pt-BR'}});
+      enderecos = await res.json();
+    } catch { enderecos = []; }
+    renderResultados(locais, enderecos);
+  }
+
+  function renderResultados(locais, enderecos) {
     focoIdx = -1;
-    if (!data.length) { lista.hidden=true; return; }
-    lista.innerHTML = data.map((r,i) => {
-      const nome = r.namedetails?.name || r.name || r.display_name.split(',')[0];
-      const ende = r.display_name.split(',').slice(1,3).join(',').trim();
-      return `<li class="busca-item" data-i="${i}" data-lat="${r.lat}" data-lon="${r.lon}">
-        <div class="r-nome">${nome}</div>
-        <div class="r-ende">${ende}</div>
-      </li>`;
-    }).join('');
+    const itens = [];
+    let html = '';
+    if (locais.length) {
+      html += '<li class="busca-sec">Locais de votação</li>';
+      locais.forEach(l => {
+        const i = itens.push({tipo:'local', id:l.id}) - 1;
+        html += `<li class="busca-item" data-i="${i}"><div class="r-nome">${escHtml(l.nome)}</div><div class="r-ende">${escHtml(l.endereco || '')} · ${escHtml(l.bairro || '')}</div></li>`;
+      });
+    }
+    if (enderecos.length) {
+      html += '<li class="busca-sec">Endereços</li>';
+      enderecos.forEach(r => {
+        const nome = r.namedetails?.name || r.name || (r.display_name || '').split(',')[0];
+        const ende = (r.display_name || '').split(',').slice(1, 3).join(',').trim();
+        const i = itens.push({tipo:'endereco', lon:+r.lon, lat:+r.lat}) - 1;
+        html += `<li class="busca-item" data-i="${i}"><div class="r-nome">${escHtml(nome)}</div><div class="r-ende">${escHtml(ende)}</div></li>`;
+      });
+    }
+    if (!html) { lista.hidden = true; return; }
+    lista.innerHTML = html;
     lista.hidden = false;
 
     lista.querySelectorAll('.busca-item').forEach(item => {
       item.addEventListener('click', () => {
-        const lat = +item.dataset.lat, lon = +item.dataset.lon;
+        const escolhido = itens[+item.dataset.i];
         lista.hidden = true;
         input.value = item.querySelector('.r-nome').textContent;
+        if (escolhido.tipo === 'local') {
+          if (marcador) { marcador.remove(); marcador = null; }
+          abrirLocal(escolhido.id, null);
+          mapa.flyTo({center:[porId.get(escolhido.id).lon, porId.get(escolhido.id).lat], zoom:15.4, duration:1200, essential:true});
+          return;
+        }
+        const lon = escolhido.lon, lat = escolhido.lat;
+        const fora = lon < -51.5 || lon > -50.9 || lat < -29.4 || lat > -28.9;
+        const perto = localMaisProximo(lon, lat);
+        if (!perto.local || (fora && perto.dist > 15000)) {
+          localFixo = false;
+          const box = document.getElementById('info-box');
+          box.hidden = false;
+          document.getElementById('ib-padrao').hidden = false;
+          document.getElementById('ib-local').hidden = true;
+          document.getElementById('ib-fechar').hidden = true;
+          document.getElementById('ib-nome').textContent = 'Fora do município';
+          document.getElementById('ib-footer').textContent = 'Esse endereço fica fora de Caxias do Sul.';
+          return;
+        }
         if (marcador) marcador.remove();
-        marcador = new maplibregl.Marker({color:'#B85462'})
-          .setLngLat([lon,lat]).addTo(mapa);
-        mapa.flyTo({center:[lon,lat], zoom:16, duration:1600, essential:true});
+        marcador = new maplibregl.Marker({color:'#B85462'}).setLngLat([lon, lat]).addTo(mapa);
+        abrirLocal(perto.local.id, {lon, lat, dist:perto.dist});
+        const bounds = new maplibregl.LngLatBounds([lon, lat], [lon, lat]);
+        bounds.extend([perto.local.lon, perto.local.lat]);
+        mapa.fitBounds(bounds, {padding:{top:80, bottom:40, left:340, right:320}, maxZoom:15.5, duration:1200});
       });
     });
   }

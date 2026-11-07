@@ -1,4 +1,5 @@
 .venv/
 _cache_ibge/
+_cache_tse/
 __pycache__/
 *.pyc

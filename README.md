@@ -2,11 +2,14 @@
 
 Mapa 3D interativo de Caxias do Sul (RS) com dados socioeconômicos reais por
 bairro (Censo IBGE 2022), mais uma linha de análise exploratória (clustering
-e regressão) sobre os determinantes espaciais da renda per capita entre
-bairros.
+e regressão) sobre os determinantes espaciais do rendimento médio do
+responsável pelo domicílio entre bairros.
 
-**Site**: `index.html` — mapa interativo (satélite + choropleth) com 4
-indicadores por bairro: renda, densidade, escolaridade e emprego formal.
+**Site**: `index.html` — mapa interativo (satélite + choropleth). Os
+indicadores por bairro são renda do responsável, densidade, alfabetização,
+emprego formal, presidente em 2026 e prefeito em 2024. Nos temas eleitorais
+o mapa mostra o local de votação e a busca de endereço abre o local mais
+próximo, com o vencedor de cada turno e o partido mais votado para a Câmara.
 
 ## Estrutura
 
@@ -28,7 +31,7 @@ Fontes por indicador:
 | Indicador | Fonte | Real ou estimado |
 |---|---|---|
 | população, área, densidade | IBGE Censo 2022, tabela "Básico" | Real |
-| renda per capita | IBGE Censo 2022, tabela "Rendimento do responsável" | Real |
+| rendimento médio do responsável | IBGE Censo 2022, variável V06004 | Real — média mensal nominal das pessoas responsáveis com rendimento |
 | escolaridade (% alfabetizados 15+) | IBGE Censo 2022, tabelas "Alfabetização" + "Demografia" | Real |
 | emprego formal | IBGE/CEMPRE via SIDRA (tabela 9509) | Estimativa — total municipal distribuído proporcionalmente à população (não existe granularidade por bairro nas fontes públicas) |
 
@@ -50,10 +53,10 @@ Rodar nessa ordem, depois de `pipeline_ibge.py`. Cada script escreve de
 volta em `dados_bairros.json` (novos campos) e acrescenta uma seção em
 `analise_regressao_renda.md` com o resultado estatístico completo.
 
-O modelo final (R² = 0,716, ajustado 0,702) explica renda per capita por
-bairro a partir de distância ao centro, % de população branca e razão de
-dependência etária. Ver a análise completa, com revisão de literatura e
-discussão de limitações, em:
+O modelo final (R² = 0,716, ajustado 0,702) explica o rendimento médio do
+responsável por bairro a partir de distância ao centro, % de população branca
+e razão de dependência etária. Ver a análise completa, com revisão de
+literatura e discussão de limitações, em:
 
 - [`relatorio_projeto_doutorado.md`](relatorio_projeto_doutorado.md) — documento de trabalho completo (também espelhado no Obsidian, em `Projetos/Caxias em 3D - Dimensões Sociais e Econômicas de uma grande cidade.md`)
 - [`analise_regressao_renda.md`](analise_regressao_renda.md) — saída bruta de cada modelo testado
@@ -83,7 +86,9 @@ python3 analise_regressao_v2.py
 python3 analise_regressao_v3.py
 python3 analise_robustez.py
 
-python3 -m http.server 8787   # depois abrir http://localhost:8787
+python3 pipeline_eleicoes.py     # gera dados_eleicao.json (2026) e os geojson da eleição
+python3 pipeline_2024.py        # junta o prefeito de 2024 e a regressão ao mesmo JSON
+python3 -m http.server 8787   # http://localhost:8787
 ```
 
 ## Limitações conhecidas
@@ -93,5 +98,10 @@ python3 -m http.server 8787   # depois abrir http://localhost:8787
 - `emprego_formal` é estimativa, não medição por bairro (ver tabela acima).
 - `densidade_comercial_osm` é proxy de atividade econômica via OpenStreetMap
   — sujeito a viés de cobertura do mapeamento colaborativo.
-- A regressão é OLS transversal (N=65, um único ano) — correlação, não
-  causalidade. Discussão completa em `relatorio_projeto_doutorado.md`.
+- A regressão da renda do responsável é OLS transversal (N=65, um único ano)
+  — correlação, não causalidade. Discussão completa em
+  `relatorio_projeto_doutorado.md`.
+- A regressão do voto (painel “Renda e o voto”) é outra: mínimos quadrados
+  ponderados pelos votos válidos, um ponto por bairro do IBGE, erro-padrão
+  HC1. A renda é a do Censo de 2022 e o eleitor não vota necessariamente no
+  bairro onde mora. O coeficiente descreve bairros, não pessoas.
